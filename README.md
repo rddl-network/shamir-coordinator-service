@@ -1,0 +1,1 @@
+# shamir-coordinator-service
