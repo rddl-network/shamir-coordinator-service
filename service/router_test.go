@@ -3,8 +3,8 @@ package service_test
 import (
 	"testing"
 
-	"github.com/rddl-network/ta_attest/config"
-	"github.com/rddl-network/ta_attest/service"
+	"github.com/rddl-network/shamir-coordinator-service/config"
+	"github.com/rddl-network/shamir-coordinator-service/service"
 	"gotest.tools/assert"
 )
 

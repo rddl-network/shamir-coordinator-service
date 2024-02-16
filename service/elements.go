@@ -15,7 +15,7 @@ func (s *ShamirCoordinatorService) SendAsset(address string, amount string) (txI
 		"null",
 		`"unset"`,
 		"false",
-		`"` + s.cfg.Token + `"`,
+		`"` + s.cfg.AssetID + `"`,
 	})
 	return
 }

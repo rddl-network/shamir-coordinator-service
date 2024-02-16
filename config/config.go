@@ -9,7 +9,7 @@ share-holder-list="{{ .ShareHolderList }}"
 certs-path="{{ .CertsPath }}"
 wallet-name="{{ .WalletName }}"
 elements-rpc-url="{{ .ElementsRpcUrl }}"
-token="{{ .Token }}"
+asset-id="{{ .AssetID }}"
 `
 
 // Config defines TA's top level configuration
@@ -20,7 +20,7 @@ type Config struct {
 	CertsPath       string `json:"certs-path"          mapstructure:"certs-path"`
 	WalletName      string `json:"wallet-name"         mapstructure:"wallet-name"`
 	ElementsRpcUrl  string `json:"elements-rpc-url"    mapstructure:"elements-rpc-url"`
-	Token           string `json:"token"    		   mapstructure:"token"`
+	AssetID         string `json:"asset-id"    		   mapstructure:"asset-id"`
 }
 
 // global singleton
@@ -38,7 +38,7 @@ func DefaultConfig() *Config {
 		CertsPath:       "./certs/",
 		WalletName:      "wallet",
 		ElementsRpcUrl:  "http://127.0.0.1:26657",
-		Token:           "RDDL",
+		AssetID:         "RDDL",
 	}
 }
 

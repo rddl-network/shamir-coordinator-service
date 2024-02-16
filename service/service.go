@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rddl-network/ta_attest/config"
+	"github.com/rddl-network/shamir-coordinator-service/config"
 )
 
 type ShamirCoordinatorService struct {
