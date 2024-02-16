@@ -1,4 +1,4 @@
-module github.com/rddl-network/ta_attest
+module github.com/rddl-network/shamir-coordinator-service
 
 go 1.20
 
