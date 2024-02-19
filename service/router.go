@@ -14,14 +14,69 @@ func (s *ShamirCoordinatorService) sendTokens(c *gin.Context) {
 	recipient := c.Param("recipient")
 	amount := c.Param("amount")
 
+	mnemonics, err := s.CollectMnemonics()
+	// This code snippet is handling an error scenario in the `sendTokens` function of the
+	// `ShamirCoordinatorService`.
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error collecting the shares"})
+		return
+	}
+	_, err = s.RecoverSeed(mnemonics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error computing the seeds: " + err.Error()})
+		return
+	}
+	// load wallet
+	// decrypt loaded wallet via RPC and above recovered key
+
 	txID, err := s.SendAsset(recipient, amount)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error sending/broadcasting the transaction"})
 		return
 	}
 
+	// unload wallet
+
 	var resBody TxIDBody
 	resBody.TxID = txID
+	c.JSON(http.StatusOK, resBody)
+}
+
+func (s *ShamirCoordinatorService) deployShares(c *gin.Context) {
+
+	mnemonics, err := s.CreateMnemonics("31622fc2d536a751dfff93c6cf21b3d206d4c5362f7fa48e974233db0a56c6c73e6c7466e424d1fd04ed5e0e94e155ad")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "share creation failed"})
+		return
+	}
+	err = s.deployMnemonics(mnemonics)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error sending/broadcasting the transaction"})
+		return
+	}
+
+	c.JSON(http.StatusOK, "{}")
+}
+
+type MnemonicsBody struct {
+	Mnemonics []string `binding:"required" json:"mnemonics"`
+	Seed      string   `binding:"required" json:"seed"`
+}
+
+func (s *ShamirCoordinatorService) collectShares(c *gin.Context) {
+	mnemonics, err := s.CollectMnemonics()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error collecting the shares"})
+		return
+	}
+	seed, err := s.RecoverSeed(mnemonics[:s.cfg.ShamirThreshold])
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error computing the seeds: " + err.Error()})
+		return
+	}
+	var resBody MnemonicsBody
+	resBody.Mnemonics = mnemonics
+	resBody.Seed = seed
 	c.JSON(http.StatusOK, resBody)
 }
 

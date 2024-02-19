@@ -8,16 +8,16 @@ import (
 	"gotest.tools/assert"
 )
 
-func TestTestnetModeTrue(t *testing.T) {
+func TestTestMode(t *testing.T) {
 	cfg := config.DefaultConfig()
+	cfg.TestMode = true
 	s := service.NewShamirCoordinatorService(cfg)
 
 	routes := s.GetRoutes()
-	assert.Equal(t, 2, len(routes))
-	assert.Equal(t, "/register/:pubkey", routes[1].Path)
+	assert.Equal(t, 3, len(routes))
 }
 
-func TestTestnetModeFalse(t *testing.T) {
+func TestNotTestMode(t *testing.T) {
 	cfg := config.DefaultConfig()
 	s := service.NewShamirCoordinatorService(cfg)
 

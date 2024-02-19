@@ -19,7 +19,10 @@ func NewShamirCoordinatorService(cfg *config.Config) *ShamirCoordinatorService {
 	gin.SetMode(gin.ReleaseMode)
 	service.router = gin.New()
 	service.router.POST("/send/:recipient/:amount", service.sendTokens)
-
+	if cfg.TestMode {
+		service.router.POST("/mnemonics", service.deployShares)
+		service.router.GET("/mnemonics", service.collectShares)
+	}
 	return service
 }
 
