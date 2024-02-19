@@ -1,9 +1,12 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
+	elements "github.com/rddl-network/elements-rpc"
 )
 
 type TxIDBody struct {
@@ -21,13 +24,25 @@ func (s *ShamirCoordinatorService) sendTokens(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error collecting the shares"})
 		return
 	}
-	_, err = s.RecoverSeed(mnemonics)
+	passphrase, err := s.RecoverSeed(mnemonics[:s.cfg.ShamirThreshold])
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error computing the seeds: " + err.Error()})
 		return
 	}
+
 	// load wallet
 	// decrypt loaded wallet via RPC and above recovered key
+	_, err = elements.LoadWallet(s.cfg.GetRPCConnectionString(), []string{s.cfg.RpcWalletName})
+	if err != nil {
+		fmt.Println("Error loading the wallet: " + err.Error())
+		return
+	}
+
+	err = elements.Walletpassphrase(s.cfg.GetRPCConnectionString(), []string{passphrase, strconv.Itoa(s.cfg.RpcEncTimeout)})
+	if err != nil {
+		fmt.Println("Error decrypting the wallet: " + err.Error())
+		return
+	}
 
 	txID, err := s.SendAsset(recipient, amount)
 	if err != nil {
@@ -36,6 +51,10 @@ func (s *ShamirCoordinatorService) sendTokens(c *gin.Context) {
 	}
 
 	// unload wallet
+	_, err = elements.UnloadWallet(s.cfg.GetRPCConnectionString(), []string{s.cfg.RpcWalletName})
+	if err != nil {
+		fmt.Println("Error unloading the wallet: " + err.Error())
+	}
 
 	var resBody TxIDBody
 	resBody.TxID = txID

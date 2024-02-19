@@ -6,7 +6,7 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0
 	github.com/gin-gonic/gin v1.9.1
-	github.com/rddl-network/elements-rpc v0.5.4
+	github.com/rddl-network/elements-rpc v0.5.5
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
 	gotest.tools v2.2.0+incompatible
