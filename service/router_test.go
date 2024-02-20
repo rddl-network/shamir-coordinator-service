@@ -12,18 +12,21 @@ import (
 )
 
 func TestTestMode(t *testing.T) {
-	cfg := config.DefaultConfig()
-	cfg.TestMode = true
+	cfg, err := config.LoadConfig("../")
+	assert.NoError(t, err)
+	mycfg := *cfg
+	mycfg.TestMode = true
 
-	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	s := service.NewShamirCoordinatorService(cfg, ssc)
+	ssc := testutil.NewShamirShareholderClientMock(&mycfg)
+	s := service.NewShamirCoordinatorService(&mycfg, ssc)
 
 	routes := s.GetRoutes()
 	assert.Equal(t, 3, len(routes))
 }
 
 func TestNotTestMode(t *testing.T) {
-	cfg := config.DefaultConfig()
+	cfg, err := config.LoadConfig("../")
+	assert.NoError(t, err)
 	ssc := testutil.NewShamirShareholderClientMock(cfg)
 	s := service.NewShamirCoordinatorService(cfg, ssc)
 
@@ -34,7 +37,8 @@ func TestNotTestMode(t *testing.T) {
 func TestSendTo(t *testing.T) {
 	elements.Client = &elementsmocks.MockClient{}
 
-	cfg := config.DefaultConfig()
+	cfg, err := config.LoadConfig("../")
+	assert.NoError(t, err)
 	ssc := testutil.NewShamirShareholderClientMock(cfg)
 	s := service.NewShamirCoordinatorService(cfg, ssc)
 	address := "tlq1qqvsmfp0w3dmvwtkfteanzk0n7wksu6zx4pywzvak9p6d34yngghw39ynqwcxqrq3muqxffflmprr9exn8ldm79mlkz7dmpy0e"

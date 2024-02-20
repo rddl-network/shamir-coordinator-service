@@ -48,7 +48,7 @@ func (s *ShamirCoordinatorService) RecoverSeed(mnemonics []string) (seed string,
 	args = append(args, mnemonics...)
 
 	//cmd := exec.Command(s.cfg.VirtualEnvPath+"/bin/python", "."+"/shamir_recover.py", mnemonics...)
-	cmd := exec.Command(s.cfg.VirtualEnvPath+"bin/python", args...)
+	cmd := exec.Command(s.cfg.VirtualEnvPath+"/bin/python", args...)
 	// Capture the output
 	var out bytes.Buffer
 	var stderr bytes.Buffer

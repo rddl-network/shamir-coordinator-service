@@ -10,7 +10,8 @@ import (
 )
 
 func TestShamirDeploymnet(t *testing.T) {
-	cfg := config.DefaultConfig()
+	cfg, err := config.LoadConfig("../")
+	assert.NoError(t, err)
 	ssc := testutil.NewShamirShareholderClientMock(cfg)
 	s := service.NewShamirCoordinatorService(cfg, ssc)
 
@@ -26,7 +27,8 @@ func TestShamirDeploymnet(t *testing.T) {
 }
 
 func TestShamirRecovery(t *testing.T) {
-	cfg := config.DefaultConfig()
+	cfg, err := config.LoadConfig("../")
+	assert.NoError(t, err)
 	ssc := testutil.NewShamirShareholderClientMock(cfg)
 	s := service.NewShamirCoordinatorService(cfg, ssc)
 
