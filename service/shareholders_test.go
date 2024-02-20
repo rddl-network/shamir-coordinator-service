@@ -18,5 +18,4 @@ func TestCollectMnemonics(t *testing.T) {
 	mnemonics, err := s.CollectMnemonics()
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(mnemonics))
-
 }

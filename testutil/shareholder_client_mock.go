@@ -14,10 +14,10 @@ func NewShamirShareholderClientMock(cfg *config.Config) *ShamirShareholderClient
 	return ssc
 }
 
-func (s *ShamirShareholderClientMock) GetMnemonic(shareholderURI string) (mnemonic string, err error) {
+func (s *ShamirShareholderClientMock) GetMnemonic(_ string) (mnemonic string, err error) {
 	return
 }
 
-func (s *ShamirShareholderClientMock) PostMnemonic(shareHolderUri string, mnemonic string) (err error) {
+func (s *ShamirShareholderClientMock) PostMnemonic(_ string, _ string) (err error) {
 	return
 }

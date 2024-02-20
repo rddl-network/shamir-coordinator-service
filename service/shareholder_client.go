@@ -58,7 +58,7 @@ func (s *ShamirShareholderClient) GetMnemonic(shareholderURI string) (mnemonic s
 	var response ShareHolderResponse
 
 	// Unmarshal the JSON into the struct
-	err = json.Unmarshal([]byte(jsonBody), &response)
+	err = json.Unmarshal(jsonBody, &response)
 	if err != nil {
 		log.Fatalf("Error parsing JSON: %v", err)
 	}
@@ -68,7 +68,7 @@ func (s *ShamirShareholderClient) GetMnemonic(shareholderURI string) (mnemonic s
 	return
 }
 
-func (s *ShamirShareholderClient) PostMnemonic(shareHolderUri string, mnemonic string) (err error) {
+func (s *ShamirShareholderClient) PostMnemonic(shareHolderURI string, mnemonic string) (err error) {
 	client, err := s.get2wayTLSClient()
 	if err != nil {
 		fmt.Printf("Error creating the 2WayTLS client: %s\n", err.Error())
@@ -79,7 +79,7 @@ func (s *ShamirShareholderClient) PostMnemonic(shareHolderUri string, mnemonic s
 	jsonData := []byte(jsonString)
 
 	// Create new request with POST method and JSON data
-	req, err := http.NewRequest("POST", shareHolderUri+"/mnemonic", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest(http.MethodPost, shareHolderURI+"/mnemonic", bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Printf("Error creating request: %v\n", err)
 		return
@@ -126,7 +126,6 @@ func (s *ShamirShareholderClient) get2wayTLSClient() (client *http.Client, err e
 		Certificates: []tls.Certificate{cert},
 		RootCAs:      caCertPool,
 	}
-	//tlsConfig.BuildNameToCertificate()
 	client = &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: tlsConfig,

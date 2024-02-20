@@ -10,7 +10,7 @@ import (
 )
 
 type TxIDBody struct {
-	TxID string `binding:"required" json:"txID"`
+	TxID string `binding:"required" json:"tx-id"`
 }
 
 func (s *ShamirCoordinatorService) sendTokens(c *gin.Context) {
@@ -32,13 +32,13 @@ func (s *ShamirCoordinatorService) sendTokens(c *gin.Context) {
 
 	// load wallet
 	// decrypt loaded wallet via RPC and above recovered key
-	_, err = elements.LoadWallet(s.cfg.GetRPCConnectionString(), []string{s.cfg.RpcWalletName})
+	_, err = elements.LoadWallet(s.cfg.GetRPCConnectionString(), []string{s.cfg.RPCWalletName})
 	if err != nil {
 		fmt.Println("Error loading the wallet: " + err.Error())
 		return
 	}
 
-	err = elements.Walletpassphrase(s.cfg.GetRPCConnectionString(), []string{passphrase, strconv.Itoa(s.cfg.RpcEncTimeout)})
+	err = elements.Walletpassphrase(s.cfg.GetRPCConnectionString(), []string{passphrase, strconv.Itoa(s.cfg.RPCEncTimeout)})
 	if err != nil {
 		fmt.Println("Error decrypting the wallet: " + err.Error())
 		return
@@ -51,7 +51,7 @@ func (s *ShamirCoordinatorService) sendTokens(c *gin.Context) {
 	}
 
 	// unload wallet
-	_, err = elements.UnloadWallet(s.cfg.GetRPCConnectionString(), []string{s.cfg.RpcWalletName})
+	_, err = elements.UnloadWallet(s.cfg.GetRPCConnectionString(), []string{s.cfg.RPCWalletName})
 	if err != nil {
 		fmt.Println("Error unloading the wallet: " + err.Error())
 	}

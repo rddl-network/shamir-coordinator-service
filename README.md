@@ -19,21 +19,20 @@ go run cmd/shamir-coordinator/main.go
 ## Configuration
 The service needs to be configured via the ```./app.toml``` file or environment variables. The defaults are
 ```
-ServiceBind:     "localhost",
-ServicePort:     8080,
-ShareHolderList: "https://localhost:8081,https://localhost:8082,https://localhost:8083",
-CertsPath:       "./certs/",
-RpcWalletName:   "wallet",
-RpcHost:         "localhost",
-RpcPort:         18884,
-RpcUser:         "user",
-RpcPassword:     "password",
-RpcScheme:       "http",
-RpcEncTimeout:   20,
-AssetID:         "asset-id",
-ShamirThreshold: 2,
-ShamirShares:    3,
-VirtualEnvPath:  "/opt/hostedtoolcache/Python/3.10.13/x64",
-TestMode:        false,
+asset-id = 'asset-id'
+certs-path = './certs/'
+rpc-enc-timeout = 20
+rpc-host = 'localhost'
+rpc-password = 'password'
+rpc-port = 18884
+rpc-scheme = 'http'
+rpc-user = 'user'
+rpc-wallet-name = 'wallet'
+service-bind = 'localhost'
+service-port = 8080
+shamir-shares = 3
+shamir-threshold = 2
+share-holder-list = 'https://localhost:8081,https://localhost:8082,https://localhost:8083'
+test-mode = false
+virtual-env-path = '/opt/hostedtoolcache/Python/3.10.13/x64'
 ```
-

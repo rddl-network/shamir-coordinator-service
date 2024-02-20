@@ -23,7 +23,6 @@ func TestShamirDeploymnet(t *testing.T) {
 	recoveredSeed, err := s.RecoverSeed(mnemonics[:cfg.ShamirThreshold])
 	assert.NoError(t, err)
 	assert.Equal(t, seed, recoveredSeed)
-
 }
 
 func TestShamirRecovery(t *testing.T) {
