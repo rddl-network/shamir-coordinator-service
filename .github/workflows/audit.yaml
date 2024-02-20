@@ -1,8 +1,8 @@
 ---
   name: Audit
   
-  on:
-    workflow_call:
+  on: [push]
+
   
   jobs:
     audit:
@@ -18,13 +18,14 @@
           uses: actions/setup-go@v4
           with:
             go-version: ${{ matrix.go-version }}
+
         - name: Setup Python
           uses: actions/setup-python@v5
-            with:
-              python-version: '3.10'
+          with:
+            python-version: '3.10'
 
         - name: Install python package
-          run: pip3 install shamir-mnemonic && shamir create 2of3
+          run: pip3 install shamir-mnemonic
 
         - name: Verify dependencies
           run: go mod verify
@@ -53,4 +54,4 @@
           run: golangci-lint run --timeout 5m
   
         - name: Run tests
-          run: go test -race -vet=off ./...
+          run: go run cmd/shamir-coordinator/main.go && go test -race -vet=off ./...

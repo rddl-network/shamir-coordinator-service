@@ -10,7 +10,8 @@ import (
 )
 
 func TestCollectMnemonics(t *testing.T) {
-	cfg := config.DefaultConfig()
+	cfg, err := config.LoadConfig("../")
+	assert.NoError(t, err)
 	ssc := testutil.NewShamirShareholderClientMock(cfg)
 	s := service.NewShamirCoordinatorService(cfg, ssc)
 

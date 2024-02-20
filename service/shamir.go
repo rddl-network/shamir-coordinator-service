@@ -44,11 +44,11 @@ func (s *ShamirCoordinatorService) CreateMnemonics(hexSecret string) (mnemonics 
 
 func (s *ShamirCoordinatorService) RecoverSeed(mnemonics []string) (seed string, err error) {
 
-	args := []string{"/home/jeckel/develop/rddl/shamir-coordinator-service" + "/python/shamir_recover.py"}
+	args := []string{"../python/shamir_recover.py"}
 	args = append(args, mnemonics...)
 
 	//cmd := exec.Command(s.cfg.VirtualEnvPath+"/bin/python", "."+"/shamir_recover.py", mnemonics...)
-	cmd := exec.Command(s.cfg.VirtualEnvPath+"bin/python", args...)
+	cmd := exec.Command(s.cfg.VirtualEnvPath+"/bin/python", args...)
 	// Capture the output
 	var out bytes.Buffer
 	var stderr bytes.Buffer
