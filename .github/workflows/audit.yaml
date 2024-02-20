@@ -1,8 +1,8 @@
 ---
   name: Audit
   
-  on:
-    workflow_call:
+  on: [push]
+
   
   jobs:
     audit:
