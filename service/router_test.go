@@ -31,7 +31,7 @@ func TestNotTestMode(t *testing.T) {
 	s := service.NewShamirCoordinatorService(cfg, ssc)
 
 	routes := s.GetRoutes()
-	assert.Equal(t, 1, len(routes))
+	assert.Equal(t, 2, len(routes))
 }
 
 func TestSendTo(t *testing.T) {

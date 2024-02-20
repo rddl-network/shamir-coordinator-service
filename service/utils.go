@@ -32,3 +32,8 @@ func GenerateNewKeyPair() (*secp256k1.PrivateKey, *secp256k1.PublicKey) {
 	privateKey, publicKey := btcec.PrivKeyFromBytes(privateKeyBytes)
 	return privateKey, publicKey
 }
+
+func IsValidHex(s string) bool {
+	_, err := hex.DecodeString(s)
+	return err == nil
+}

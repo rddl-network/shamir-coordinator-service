@@ -21,8 +21,8 @@ func NewShamirCoordinatorService(cfg *config.Config, ssc IShamirShareholderClien
 	gin.SetMode(gin.ReleaseMode)
 	service.router = gin.New()
 	service.router.POST("/send/:recipient/:amount", service.sendTokens)
+	service.router.POST("/mnemonics/:secret", service.deployShares)
 	if cfg.TestMode {
-		service.router.POST("/mnemonics", service.deployShares)
 		service.router.GET("/mnemonics", service.collectShares)
 	}
 	return service

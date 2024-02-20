@@ -62,10 +62,15 @@ func (s *ShamirCoordinatorService) sendTokens(c *gin.Context) {
 }
 
 func (s *ShamirCoordinatorService) deployShares(c *gin.Context) {
+	secret := c.Param("secret")
+	if !IsValidHex(secret) {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "the secret has to be send in valid hex string format"})
+		return
+	}
 
-	mnemonics, err := s.CreateMnemonics("31622fc2d536a751dfff93c6cf21b3d206d4c5362f7fa48e974233db0a56c6c73e6c7466e424d1fd04ed5e0e94e155ad")
+	mnemonics, err := s.CreateMnemonics(secret)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "share creation failed"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "share creation failed: " + err.Error()})
 		return
 	}
 	err = s.deployMnemonics(mnemonics)
