@@ -25,6 +25,22 @@ func loadConfig(path string) (cfg *config.Config, err error) {
 		cfg = config.GetConfig()
 		cfg.ServiceBind = v.GetString("SERVICE_BIND")
 		cfg.ServicePort = v.GetInt("SERVICE_PORT")
+		cfg.CertsPath = v.GetString("CERTS_PATH")
+		cfg.RpcScheme = v.GetString("RPC_SCHEME")
+		cfg.RpcHost = v.GetString("RPC_HOST")
+		cfg.RpcPort = v.GetInt("RPC_PORT")
+		cfg.RpcUser = v.GetString("RPC_USER")
+		cfg.RpcPassword = v.GetString("RPC_PASSWORD")
+		cfg.RpcWalletName = v.GetString("RCP_WALLET_NAME")
+		cfg.VirtualEnvPath = v.GetString("VIRTUAL_ENV_PATH")
+		cfg.ShamirShares = v.GetInt("SHAMIR_SHARES")
+		cfg.ShamirThreshold = v.GetInt("SHAMIR_THRESHOLD")
+		cfg.AssetID = v.GetString("ASSET_ID")
+		cfg.ShareHolderList = v.GetString("SHARE_HOLDER_LIST")
+
+		if err := viper.Unmarshal(&cfg); err != nil {
+			log.Fatal(err)
+		}
 		return
 	}
 	log.Println("no config file found")
