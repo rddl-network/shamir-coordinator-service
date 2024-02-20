@@ -16,10 +16,6 @@ on:
           - true
           - false
         default: true
-      files:
-        description: "Files"
-        required: true
-        default: "ta"
 
 jobs:
   release:
@@ -27,4 +23,4 @@ jobs:
     with:
       tag: ${{ github.event.inputs.tag }}
       prerelease: ${{ fromJSON(github.event.inputs.prerelease) }}
-      files: ${{ github.event.inputs.files }}
+      files: shamir-coordinator
