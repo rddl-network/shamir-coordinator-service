@@ -73,8 +73,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("fatal error reading the configuration %s", err)
 	}
-
-	SCoordinator := service.NewShamirCoordinatorService(cfg)
+	ssc := service.NewShamirShareholderClient(cfg)
+	SCoordinator := service.NewShamirCoordinatorService(cfg, ssc)
 	err = SCoordinator.Run()
 	if err != nil {
 		fmt.Print(err.Error())

@@ -10,11 +10,13 @@ import (
 type ShamirCoordinatorService struct {
 	cfg    *config.Config
 	router *gin.Engine
+	ssc    IShamirShareholderClient
 }
 
-func NewShamirCoordinatorService(cfg *config.Config) *ShamirCoordinatorService {
+func NewShamirCoordinatorService(cfg *config.Config, ssc IShamirShareholderClient) *ShamirCoordinatorService {
 	service := &ShamirCoordinatorService{}
 	service.cfg = cfg
+	service.ssc = ssc
 
 	gin.SetMode(gin.ReleaseMode)
 	service.router = gin.New()
