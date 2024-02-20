@@ -6,9 +6,11 @@ To ensure secure communication it utilizes mutual TLS. It offers two routes:
 - POST `/send/:recipient/:amount`
 - POST `/mnemonics/:secret`
 
-
+## Prerequisits
+The creation and the recovery of the shares is done with the help of `https://github.com/trezor/python-shamir-mnemonic`. Therefore, the python needs to be installed and the virtual env path of the related python environment/binary needs to be defined in the configuration. 
 
 ## Execution
+
 The service can be executed via the following go command without having it previously built:
 ```bash
 go run cmd/shamir-coordinator/main.go
@@ -34,3 +36,4 @@ ShamirShares:    3,
 VirtualEnvPath:  "/opt/hostedtoolcache/Python/3.10.13/x64",
 TestMode:        false,
 ```
+
