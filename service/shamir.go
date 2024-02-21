@@ -1,41 +1,49 @@
 package service
 
 import (
-	"bytes"
+	"encoding/hex"
 	"errors"
 	"fmt"
-	"os/exec"
-	"strconv"
 	"strings"
+
+	slip39 "github.com/rddl-network/bc-slip39-go"
 )
+
+var password = ""
 
 func (s *ShamirCoordinatorService) CreateMnemonics(hexSecret string) (mnemonics []string, err error) {
 	// Define the command and arguments
-	shamirScheme := strconv.Itoa(s.cfg.ShamirThreshold) + "of" + strconv.Itoa(s.cfg.ShamirShares)
-	cmd := exec.Command(s.cfg.VirtualEnvPath+"/bin/python", s.cfg.VirtualEnvPath+"/bin/shamir", "create", "-S", hexSecret, shamirScheme)
-
-	// Capture the output
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-
-	// Execute the command
-	err = cmd.Run()
+	groupThreshold := uint8(1)
+	groups := []slip39.GroupDescriptor{
+		{
+			Threshold: uint8(s.cfg.ShamirThreshold),
+			Count:     uint8(s.cfg.ShamirShares),
+		},
+	}
+	secret, err := hex.DecodeString(hexSecret)
 	if err != nil {
-		fmt.Printf("cmd.Run() failed with %s\n", err)
-		fmt.Printf("stderr: %s\n", stderr.String())
+		return
+	}
+	iterationExponent := uint8(0)
+	count, wordsInEachShare, sharesBuffer, err := slip39.Generate(groupThreshold, groups, secret, password, iterationExponent, slip39.Random())
+	if err != nil {
 		return
 	}
 
-	mnemonics = strings.Split(out.String(), "\n")
-
-	// unwrap the result form the return message
-	mnemonics = mnemonics[2:]
-	mnemonics = mnemonics[:len(mnemonics)-1]
+	mnemonics = make([]string, count)
+	for index := 0; index < count; index++ {
+		start := index * wordsInEachShare
+		end := start + wordsInEachShare
+		words := sharesBuffer[start:end]
+		resultString, err := slip39.StringsForWords(words, wordsInEachShare)
+		if err != nil {
+			return nil, err
+		}
+		mnemonics[index] = resultString
+	}
 
 	if len(mnemonics) != s.cfg.ShamirShares {
-		msg := fmt.Sprintf("The command didn't return the expected amount of shares: %d instead of %d", len(mnemonics), s.cfg.ShamirShares)
+		msg := fmt.Sprintf("wrong amount of shares: %d instead of %d", len(mnemonics), s.cfg.ShamirShares)
 		fmt.Println(msg)
 		err = errors.New(msg)
 	}
@@ -43,25 +51,21 @@ func (s *ShamirCoordinatorService) CreateMnemonics(hexSecret string) (mnemonics 
 }
 
 func (s *ShamirCoordinatorService) RecoverSeed(mnemonics []string) (seed string, err error) {
-	args := []string{"../python/shamir_recover.py"}
-	args = append(args, mnemonics...)
-
-	cmd := exec.Command(s.cfg.VirtualEnvPath+"/bin/python", args...)
-	// Capture the output
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
-
-	// Execute the command
-	err = cmd.Run()
+	selectedSharesLen := len(mnemonics)
+	selectedSharesWords := make([][]uint16, selectedSharesLen)
+	for index := 0; index < selectedSharesLen; index++ {
+		selectedShareString := mnemonics[index]
+		wordsInEachShare := len(strings.Fields(selectedShareString))
+		resultWords, err := slip39.WordsForStrings(selectedShareString, wordsInEachShare)
+		if err != nil {
+			return "", err
+		}
+		selectedSharesWords[index] = resultWords
+	}
+	secret, err := slip39.Combine(selectedSharesWords, password)
 	if err != nil {
-		fmt.Printf("cmd.Run() failed with %s\n", err)
-		fmt.Printf("stderr: %s\n", stderr.String())
-		fmt.Printf("stdout: %s\n", out.String())
 		return
 	}
-	seed = out.String()
-	seed = seed[:len(seed)-1]
+	seed = hex.EncodeToString(secret)
 	return
 }

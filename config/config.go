@@ -20,7 +20,6 @@ rpc-enc-timeout={{ .RPCEncTimeout }}
 asset-id="{{ .AssetID }}"
 shamir-threshold={{ .ShamirThreshold }}
 shamir-shares={{ .ShamirShares }}
-virtual-env-path="{{ .VirtualEnvPath }}"
 test-mode={{ .TestMode }}
 `
 
@@ -40,7 +39,6 @@ type Config struct {
 	AssetID         string `json:"asset-id"          mapstructure:"asset-id"`
 	ShamirThreshold int    `json:"shamir-threshold"  mapstructure:"shamir-threshold"`
 	ShamirShares    int    `json:"shamir-shares"     mapstructure:"shamir-shares"`
-	VirtualEnvPath  string `json:"virtual-env-path"  mapstructure:"virtual-env-path"`
 	TestMode        bool   `json:"test-mode"         mapstructure:"test-mode"`
 }
 
@@ -67,7 +65,6 @@ func DefaultConfig() *Config {
 		AssetID:         "asset-id",
 		ShamirThreshold: 2,
 		ShamirShares:    3,
-		VirtualEnvPath:  "/opt/hostedtoolcache/Python/3.10.13/x64",
 		TestMode:        false,
 	}
 }
