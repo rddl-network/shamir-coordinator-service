@@ -27,6 +27,7 @@ linters:
     - gochecksumtype
     - gocognit
     - goconst
+    - gocritic
     - gocyclo
     - gofmt
     - goheader
@@ -47,8 +48,10 @@ linters:
     - nakedret
     - nestif
     - nilnil
+    - noctx
     - nolintlint
     - nosprintfhostport
+    - paralleltest
     - perfsprint
     - prealloc
     - predeclared
