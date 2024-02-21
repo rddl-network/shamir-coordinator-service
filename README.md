@@ -7,7 +7,15 @@ To ensure secure communication it utilizes mutual TLS. It offers two routes:
 - POST `/mnemonics/:secret`
 
 ## Prerequisits
-The creation and the recovery of the shares is done with the help of `https://github.com/trezor/python-shamir-mnemonic`. Therefore, the python needs to be installed and the virtual env path of the related python environment/binary needs to be defined in the configuration. 
+The creation and the recovery of the shares is done with the help of `https://github.com/rddl-network/bc-slip39-go`.
+Therefore, the C libraries of BlockchainCommons need to be built.
+Please execute the following:
+```bash
+git submodule update --init --recursive
+pushd bc-slip39-go
+./deps.sh
+popd
+```
 
 ## Execution
 
@@ -34,5 +42,4 @@ shamir-shares = 3
 shamir-threshold = 2
 share-holder-list = 'https://localhost:8081,https://localhost:8082,https://localhost:8083'
 test-mode = false
-virtual-env-path = '/opt/hostedtoolcache/Python/3.10.13/x64'
 ```

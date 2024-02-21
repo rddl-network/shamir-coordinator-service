@@ -28,7 +28,6 @@ func LoadConfig(path string) (cfg *Config, err error) {
 		cfg.RPCUser = v.GetString("rpc-user")
 		cfg.RPCPassword = v.GetString("rpc-password")
 		cfg.RPCWalletName = v.GetString("rpc-wallet-name")
-		cfg.VirtualEnvPath = v.GetString("virtual-env-path")
 		cfg.ShamirShares = v.GetInt("shamir-shares")
 		cfg.ShamirThreshold = v.GetInt("shamir-threshold")
 		cfg.AssetID = v.GetString("asset-id")

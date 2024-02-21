@@ -13,19 +13,19 @@
       steps:
         - name: Checkout
           uses: actions/checkout@v3
+          with:
+            submodules: true
   
         - name: Setup Go
           uses: actions/setup-go@v4
           with:
             go-version: ${{ matrix.go-version }}
 
-        - name: Setup Python
-          uses: actions/setup-python@v5
-          with:
-            python-version: '3.10'
-
-        - name: Install python package
-          run: pip3 install shamir-mnemonic
+        - name: Install dependencies
+          run: |
+            pushd bc-slip39-go
+            ./deps.sh
+            popd
 
         - name: Verify dependencies
           run: go mod verify
