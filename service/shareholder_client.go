@@ -2,12 +2,12 @@ package service
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 
@@ -41,7 +41,13 @@ func (s *ShamirShareholderClient) GetMnemonic(shareholderURI string) (mnemonic s
 	}
 
 	// Make request
-	resp, err := client.Get(shareholderURI + "/mnemonic")
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, shareholderURI+"/mnemonic", nil)
+	if err != nil {
+		fmt.Printf("Error creating request: %v\n", err)
+		return
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("Error making request: %v\n", err)
 		return
@@ -60,7 +66,8 @@ func (s *ShamirShareholderClient) GetMnemonic(shareholderURI string) (mnemonic s
 	// Unmarshal the JSON into the struct
 	err = json.Unmarshal(jsonBody, &response)
 	if err != nil {
-		log.Fatalf("Error parsing JSON: %v", err)
+		fmt.Printf("Error parsing JSON: %v", err)
+		return
 	}
 
 	fmt.Printf("Response: %s\n", jsonBody)
@@ -79,7 +86,8 @@ func (s *ShamirShareholderClient) PostMnemonic(shareHolderURI string, mnemonic s
 	jsonData := []byte(jsonString)
 
 	// Create new request with POST method and JSON data
-	req, err := http.NewRequest(http.MethodPost, shareHolderURI+"/mnemonic", bytes.NewBuffer(jsonData))
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, shareHolderURI+"/mnemonic", bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Printf("Error creating request: %v\n", err)
 		return
