@@ -114,7 +114,7 @@ func (s *ShamirShareholderClient) PostMnemonic(shareHolderURI string, mnemonic s
 
 func (s *ShamirShareholderClient) get2wayTLSClient() (client *http.Client, err error) {
 	// Load client cert
-	cert, err := tls.LoadX509KeyPair(s.cfg.CertsPath+"server.crt", s.cfg.CertsPath+"server.key")
+	cert, err := tls.LoadX509KeyPair(s.cfg.CertsPath+"client.crt", s.cfg.CertsPath+"client.key")
 	if err != nil {
 		fmt.Printf("Error loading client certificate: %v\n", err)
 		return
