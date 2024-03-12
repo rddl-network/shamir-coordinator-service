@@ -9,7 +9,7 @@ import (
 
 type ShamirCoordinatorService struct {
 	cfg    *config.Config
-	router *gin.Engine
+	Router *gin.Engine
 	ssc    IShamirShareholderClient
 }
 
@@ -19,11 +19,11 @@ func NewShamirCoordinatorService(cfg *config.Config, ssc IShamirShareholderClien
 	service.ssc = ssc
 
 	gin.SetMode(gin.ReleaseMode)
-	service.router = gin.New()
-	service.router.POST("/send/:recipient/:amount", service.sendTokens)
-	service.router.POST("/mnemonics/:secret", service.deployShares)
+	service.Router = gin.New()
+	service.Router.POST("/send/:recipient/:amount", service.SendTokens)
+	service.Router.POST("/mnemonics/:secret", service.DeployShares)
 	if cfg.TestMode {
-		service.router.GET("/mnemonics", service.collectShares)
+		service.Router.GET("/mnemonics", service.CollectShares)
 	}
 	return service
 }
@@ -38,7 +38,7 @@ func (s *ShamirCoordinatorService) Run() (err error) {
 
 func (s *ShamirCoordinatorService) startWebService() error {
 	addr := fmt.Sprintf("%s:%d", s.cfg.ServiceBind, s.cfg.ServicePort)
-	err := s.router.Run(addr)
+	err := s.Router.Run(addr)
 
 	return err
 }
