@@ -29,8 +29,11 @@ func (s *ShamirCoordinatorService) sendTokens(c *gin.Context) {
 
 	// prepare the wallet, loading and unlocking
 	err = s.PrepareWallet(passphrase)
-
-	//send asset
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "error loading the wallet " + err.Error()})
+		return
+	}
+	// send asset
 	txID, err := s.SendAsset(recipient, amount)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error sending/broadcasting the transaction"})

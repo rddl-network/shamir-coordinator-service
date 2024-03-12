@@ -24,7 +24,6 @@ func (s *ShamirCoordinatorService) SendAsset(address string, amount string) (txI
 }
 
 func (s *ShamirCoordinatorService) IsWalletLoaded(rpcURL string, walletname string) (loaded bool, err error) {
-
 	wallets, err := elements.ListWallets(rpcURL, []string{})
 	if err != nil {
 		return
