@@ -1,12 +1,9 @@
 package service
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
-	elements "github.com/rddl-network/elements-rpc"
 )
 
 type TxIDBody struct {
@@ -30,30 +27,14 @@ func (s *ShamirCoordinatorService) sendTokens(c *gin.Context) {
 		return
 	}
 
-	// load wallet
-	// decrypt loaded wallet via RPC and above recovered key
-	_, err = elements.LoadWallet(s.cfg.GetRPCConnectionString(), []string{s.cfg.RPCWalletName})
-	if err != nil {
-		fmt.Println("Error loading the wallet: " + err.Error())
-		return
-	}
+	// prepare the wallet, loading and unlocking
+	err = s.PrepareWallet(passphrase)
 
-	err = elements.Walletpassphrase(s.cfg.GetRPCConnectionString(), []string{passphrase, strconv.Itoa(s.cfg.RPCEncTimeout)})
-	if err != nil {
-		fmt.Println("Error decrypting the wallet: " + err.Error())
-		return
-	}
-
+	//send asset
 	txID, err := s.SendAsset(recipient, amount)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error sending/broadcasting the transaction"})
 		return
-	}
-
-	// unload wallet
-	_, err = elements.UnloadWallet(s.cfg.GetRPCConnectionString(), []string{s.cfg.RPCWalletName})
-	if err != nil {
-		fmt.Println("Error unloading the wallet: " + err.Error())
 	}
 
 	var resBody TxIDBody

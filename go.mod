@@ -7,7 +7,7 @@ require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/rddl-network/bc-slip39-go v0.1.3
-	github.com/rddl-network/elements-rpc v0.5.5
+	github.com/rddl-network/elements-rpc v0.5.8
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4
 )

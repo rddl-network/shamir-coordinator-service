@@ -1,6 +1,6 @@
 # shamir-coordinator-service
 This service serves the purpose of creating and distributing shamir secret shares to a set of distributed shareholder services, and collecting them again in order to sign a transaction.
-The transation will be issued on Liquid. The elemnts RPC can be configured with `app.toml` file.
+The transaction will be issued on Liquid. The elemnts RPC can be configured with `app.toml` file.
 To ensure secure communication it utilizes mutual TLS. It offers two routes:
 
 - POST `/send/:recipient/:amount`
@@ -16,6 +16,8 @@ pushd bc-slip39-go
 ./deps.sh
 popd
 ```
+
+The service expects that the used wallet got already created. It will load the wallet if it hasn't been loaded before but not unload after usage.
 
 ## Execution
 

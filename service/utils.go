@@ -37,3 +37,12 @@ func IsValidHex(s string) bool {
 	_, err := hex.DecodeString(s)
 	return err == nil
 }
+
+func ContainsString(slice []string, str string) bool {
+	for _, item := range slice {
+		if item == str {
+			return true
+		}
+	}
+	return false
+}
