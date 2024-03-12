@@ -13,7 +13,7 @@ type TxIDBody struct {
 	TxID string `binding:"required" json:"tx-id"`
 }
 
-func (s *ShamirCoordinatorService) sendTokens(c *gin.Context) {
+func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	recipient := c.Param("recipient")
 	amount := c.Param("amount")
 
@@ -61,10 +61,14 @@ func (s *ShamirCoordinatorService) sendTokens(c *gin.Context) {
 	c.JSON(http.StatusOK, resBody)
 }
 
-func (s *ShamirCoordinatorService) deployShares(c *gin.Context) {
+func (s *ShamirCoordinatorService) DeployShares(c *gin.Context) {
 	secret := c.Param("secret")
 	if !IsValidHex(secret) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "the secret has to be send in valid hex string format"})
+		return
+	}
+	if len(secret) != 32 && len(secret) != 64 {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "the secret has to be of length 32 or 64 (16 or 32 byte)"})
 		return
 	}
 
@@ -87,7 +91,7 @@ type MnemonicsBody struct {
 	Seed      string   `binding:"required" json:"seed"`
 }
 
-func (s *ShamirCoordinatorService) collectShares(c *gin.Context) {
+func (s *ShamirCoordinatorService) CollectShares(c *gin.Context) {
 	mnemonics, err := s.CollectMnemonics()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error collecting the shares"})
@@ -105,6 +109,6 @@ func (s *ShamirCoordinatorService) collectShares(c *gin.Context) {
 }
 
 func (s *ShamirCoordinatorService) GetRoutes() gin.RoutesInfo {
-	routes := s.router.Routes()
+	routes := s.Router.Routes()
 	return routes
 }
