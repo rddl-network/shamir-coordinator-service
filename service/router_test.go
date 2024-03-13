@@ -1,7 +1,9 @@
 package service_test
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -21,7 +23,8 @@ func TestTestMode(t *testing.T) {
 	mycfg.TestMode = true
 
 	ssc := testutil.NewShamirShareholderClientMock(&mycfg)
-	s := service.NewShamirCoordinatorService(&mycfg, ssc)
+	slip39mock := &testutil.Slip39Mock{}
+	s := service.NewShamirCoordinatorService(&mycfg, ssc, slip39mock)
 
 	routes := s.GetRoutes()
 	assert.Equal(t, 3, len(routes))
@@ -31,31 +34,57 @@ func TestNotTestMode(t *testing.T) {
 	cfg, err := config.LoadConfig("../")
 	assert.NoError(t, err)
 	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	s := service.NewShamirCoordinatorService(cfg, ssc)
+	slip39mock := &testutil.Slip39Mock{}
+	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
 
 	routes := s.GetRoutes()
 	assert.Equal(t, 2, len(routes))
 }
 
-func TestSendTo(t *testing.T) {
-	elements.Client = &elementsmocks.MockClient{}
-
+func TestSendPass(t *testing.T) {
 	cfg, err := config.LoadConfig("../")
 	assert.NoError(t, err)
+
+	elements.Client = &elementsmocks.MockClient{}
 	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	s := service.NewShamirCoordinatorService(cfg, ssc)
-	address := "tlq1qqvsmfp0w3dmvwtkfteanzk0n7wksu6zx4pywzvak9p6d34yngghw39ynqwcxqrq3muqxffflmprr9exn8ldm79mlkz7dmpy0e"
-	amount := "0.0001"
-	txID, err := s.SendAsset(address, amount)
+	slip39mock := &testutil.Slip39Mock{}
+	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
+
+	request := service.SendTokensRequest{Amount: 123.456, Recipient: "1111111111111111111111111111"}
+	jsonString, err := json.Marshal(request)
 	assert.NoError(t, err)
-	assert.Equal(t, "0000000000000000000000000000000000000000000000000000000000000000", txID)
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/send", bytes.NewBuffer(jsonString))
+	assert.NoError(t, err)
+	s.Router.ServeHTTP(w, req)
+	assert.Equal(t, "{\"tx-id\":\"0000000000000000000000000000000000000000000000000000000000000000\"}", w.Body.String())
+	assert.Equal(t, 200, w.Code)
+}
+
+func TestSendFail(t *testing.T) {
+	cfg, err := config.LoadConfig("../")
+	assert.NoError(t, err)
+
+	elements.Client = &elementsmocks.MockClient{}
+	ssc := testutil.NewShamirShareholderClientMock(cfg)
+	slip39mock := &testutil.Slip39Mock{}
+	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/send", bytes.NewBufferString("testobject"))
+	assert.NoError(t, err)
+	s.Router.ServeHTTP(w, req)
+	assert.Contains(t, w.Body.String(), "error")
+	assert.Equal(t, 400, w.Code)
 }
 
 func TestDeployCheckHex(t *testing.T) {
 	cfg, err := config.LoadConfig("../")
 	assert.NoError(t, err)
 	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	s := service.NewShamirCoordinatorService(cfg, ssc)
+	slip39mock := &testutil.Slip39Mock{}
+	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/mnemonics/öaksjdf", nil)
@@ -69,7 +98,8 @@ func TestDeployCheckLength(t *testing.T) {
 	cfg, err := config.LoadConfig("../")
 	assert.NoError(t, err)
 	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	s := service.NewShamirCoordinatorService(cfg, ssc)
+	slip39mock := &testutil.Slip39Mock{}
+	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/mnemonics/abcdef", nil)
@@ -90,7 +120,8 @@ func TestDeployPass(t *testing.T) {
 	cfg, err := config.LoadConfig("../")
 	assert.NoError(t, err)
 	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	s := service.NewShamirCoordinatorService(cfg, ssc)
+	slip39mock := &testutil.Slip39Mock{}
+	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/mnemonics/abcdefabcdefabcdefabcdefabcdef23", nil)

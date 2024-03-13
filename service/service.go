@@ -8,19 +8,21 @@ import (
 )
 
 type ShamirCoordinatorService struct {
-	cfg    *config.Config
-	Router *gin.Engine
-	ssc    IShamirShareholderClient
+	cfg             *config.Config
+	Router          *gin.Engine
+	ssc             IShamirShareholderClient
+	slip39Interface ISlip39
 }
 
-func NewShamirCoordinatorService(cfg *config.Config, ssc IShamirShareholderClient) *ShamirCoordinatorService {
+func NewShamirCoordinatorService(cfg *config.Config, ssc IShamirShareholderClient, slip39Interface ISlip39) *ShamirCoordinatorService {
 	service := &ShamirCoordinatorService{}
 	service.cfg = cfg
 	service.ssc = ssc
+	service.slip39Interface = slip39Interface
 
 	gin.SetMode(gin.ReleaseMode)
 	service.Router = gin.New()
-	service.Router.POST("/send/:recipient/:amount", service.SendTokens)
+	service.Router.POST("/send", service.SendTokens)
 	service.Router.POST("/mnemonics/:secret", service.DeployShares)
 	if cfg.TestMode {
 		service.Router.GET("/mnemonics", service.CollectShares)

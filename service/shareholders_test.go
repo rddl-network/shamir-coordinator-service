@@ -13,7 +13,8 @@ func TestCollectMnemonics(t *testing.T) {
 	cfg, err := config.LoadConfig("../")
 	assert.NoError(t, err)
 	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	s := service.NewShamirCoordinatorService(cfg, ssc)
+	slip39mock := &testutil.Slip39Mock{}
+	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
 
 	mnemonics, err := s.CollectMnemonics()
 	assert.NoError(t, err)

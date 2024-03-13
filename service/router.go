@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,9 +11,17 @@ type TxIDBody struct {
 	TxID string `binding:"required" json:"tx-id"`
 }
 
+type SendTokensRequest struct {
+	Recipient string  `json:"recipient"`
+	Amount    float64 `json:"amount"`
+}
+
 func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
-	recipient := c.Param("recipient")
-	amount := c.Param("amount")
+	var request SendTokensRequest
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	mnemonics, err := s.CollectMnemonics()
 	// This code snippet is handling an error scenario in the `sendTokens` function of the
@@ -34,7 +43,7 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 		return
 	}
 	// send asset
-	txID, err := s.SendAsset(recipient, amount)
+	txID, err := s.SendAsset(request.Recipient, fmt.Sprintf("%f", request.Amount))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error sending/broadcasting the transaction"})
 		return
