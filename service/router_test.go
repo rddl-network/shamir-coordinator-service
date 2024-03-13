@@ -50,7 +50,7 @@ func TestSendPass(t *testing.T) {
 	slip39mock := &testutil.Slip39Mock{}
 	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
 
-	request := service.SendTokensRequest{Amount: 123.456, Recipient: "1111111111111111111111111111"}
+	request := service.SendTokensRequest{Amount: "123.456", Recipient: "1111111111111111111111111111"}
 	jsonString, err := json.Marshal(request)
 	assert.NoError(t, err)
 

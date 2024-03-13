@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,8 +11,8 @@ type TxIDBody struct {
 }
 
 type SendTokensRequest struct {
-	Recipient string  `json:"recipient"`
-	Amount    float64 `json:"amount"`
+	Recipient string `json:"recipient"`
+	Amount    string `json:"amount"`
 }
 
 func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
@@ -43,7 +42,7 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 		return
 	}
 	// send asset
-	txID, err := s.SendAsset(request.Recipient, fmt.Sprintf("%f", request.Amount))
+	txID, err := s.SendAsset(request.Recipient, request.Amount)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error sending/broadcasting the transaction"})
 		return
