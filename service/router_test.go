@@ -120,7 +120,7 @@ func TestDeployPass(t *testing.T) {
 	cfg, err := config.LoadConfig("../")
 	assert.NoError(t, err)
 	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	slip39mock := &testutil.Slip39Mock{}
+	slip39mock := &service.Slip39Interface{}
 	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
 
 	w := httptest.NewRecorder()
