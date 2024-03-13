@@ -25,7 +25,7 @@ func (s *ShamirCoordinatorService) CreateMnemonics(hexSecret string) (mnemonics 
 		return
 	}
 	iterationExponent := uint8(0)
-	count, wordsInEachShare, sharesBuffer, err := slip39.Generate(groupThreshold, groups, secret, password, iterationExponent, slip39.Random())
+	count, wordsInEachShare, sharesBuffer, err := s.slip39Interface.Generate(groupThreshold, groups, secret, password, iterationExponent, slip39.Random())
 	if err != nil {
 		return
 	}
@@ -35,7 +35,7 @@ func (s *ShamirCoordinatorService) CreateMnemonics(hexSecret string) (mnemonics 
 		start := index * wordsInEachShare
 		end := start + wordsInEachShare
 		words := sharesBuffer[start:end]
-		resultString, err := slip39.StringsForWords(words, wordsInEachShare)
+		resultString, err := s.slip39Interface.StringsForWords(words, wordsInEachShare)
 		if err != nil {
 			return nil, err
 		}
@@ -56,13 +56,13 @@ func (s *ShamirCoordinatorService) RecoverSeed(mnemonics []string) (seed string,
 	for index := 0; index < selectedSharesLen; index++ {
 		selectedShareString := mnemonics[index]
 		wordsInEachShare := len(strings.Fields(selectedShareString))
-		resultWords, err := slip39.WordsForStrings(selectedShareString, wordsInEachShare)
+		resultWords, err := s.slip39Interface.WordsForStrings(selectedShareString, wordsInEachShare)
 		if err != nil {
 			return "", err
 		}
 		selectedSharesWords[index] = resultWords
 	}
-	secret, err := slip39.Combine(selectedSharesWords, password)
+	secret, err := s.slip39Interface.Combine(selectedSharesWords, password)
 	if err != nil {
 		return
 	}
