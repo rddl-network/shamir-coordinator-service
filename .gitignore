@@ -22,3 +22,5 @@ go.work
 
 /shamir-coordinator
 tags
+
+app.toml
