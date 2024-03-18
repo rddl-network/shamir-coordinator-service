@@ -19,7 +19,7 @@ type IShamirCoordinatorClient interface {
 
 type ShamirCoordinatorClient struct {
 	baseURL string
-	Client  *http.Client
+	client  *http.Client
 }
 
 func NewShamirCoordinatorClient(baseURL string, client *http.Client) *ShamirCoordinatorClient {
@@ -28,7 +28,7 @@ func NewShamirCoordinatorClient(baseURL string, client *http.Client) *ShamirCoor
 	}
 	return &ShamirCoordinatorClient{
 		baseURL: baseURL,
-		Client:  client,
+		client:  client,
 	}
 }
 
@@ -70,7 +70,7 @@ func (scc *ShamirCoordinatorClient) doRequest(ctx context.Context, method, url s
 		req.Header.Set("Content-Type", "application/json")
 	}
 
-	resp, err := scc.Client.Do(req)
+	resp, err := scc.client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,11 @@ func (scc *ShamirCoordinatorClient) doRequest(ctx context.Context, method, url s
 		return &httpError{StatusCode: resp.StatusCode}
 	}
 
-	return json.NewDecoder(resp.Body).Decode(response)
+	if response != nil {
+		return json.NewDecoder(resp.Body).Decode(response)
+	}
+
+	return
 }
 
 type httpError struct {
