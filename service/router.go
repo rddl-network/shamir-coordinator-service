@@ -6,15 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TxIDBody struct {
-	TxID string `binding:"required" json:"tx-id"`
-}
-
-type SendTokensRequest struct {
-	Recipient string `json:"recipient"`
-	Amount    string `json:"amount"`
-}
-
 func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	var request SendTokensRequest
 	if err := c.BindJSON(&request); err != nil {
@@ -48,7 +39,7 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 		return
 	}
 
-	var resBody TxIDBody
+	var resBody SendTokensResponse
 	resBody.TxID = txID
 	c.JSON(http.StatusOK, resBody)
 }
@@ -78,11 +69,6 @@ func (s *ShamirCoordinatorService) DeployShares(c *gin.Context) {
 	c.JSON(http.StatusOK, "{}")
 }
 
-type MnemonicsBody struct {
-	Mnemonics []string `binding:"required" json:"mnemonics"`
-	Seed      string   `binding:"required" json:"seed"`
-}
-
 func (s *ShamirCoordinatorService) CollectShares(c *gin.Context) {
 	mnemonics, err := s.CollectMnemonics()
 	if err != nil {
@@ -94,7 +80,7 @@ func (s *ShamirCoordinatorService) CollectShares(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "error computing the seeds: " + err.Error()})
 		return
 	}
-	var resBody MnemonicsBody
+	var resBody MnemonicsResponse
 	resBody.Mnemonics = mnemonics
 	resBody.Seed = seed
 	c.JSON(http.StatusOK, resBody)
