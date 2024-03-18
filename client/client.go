@@ -18,91 +18,75 @@ type IShamirCoordinatorClient interface {
 }
 
 type ShamirCoordinatorClient struct {
-	host   string
-	client *http.Client
+	baseURL string
+	Client  *http.Client
 }
 
-func NewShamirCoordinatorClient(host string) *ShamirCoordinatorClient {
+func NewShamirCoordinatorClient(baseURL string, client *http.Client) *ShamirCoordinatorClient {
+	if client == nil {
+		client = &http.Client{}
+	}
 	return &ShamirCoordinatorClient{
-		host:   host,
-		client: &http.Client{},
+		baseURL: baseURL,
+		Client:  client,
 	}
 }
 
-func (scc *ShamirCoordinatorClient) GetMnemonics() (res service.MnemonicsResponse, err error) {
-	url := &url.URL{
-		Scheme: "https",
-		Host:   scc.host,
-		Path:   "/mnemonics",
-	}
-
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, url.String(), nil)
-	if err != nil {
-		return
-	}
-
-	resp, err := scc.client.Do(req)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-
-	bodyBytes, err := io.ReadAll(resp.Body)
-
-	err = json.Unmarshal(bodyBytes, &res)
+func (scc *ShamirCoordinatorClient) GetMnemonics(ctx context.Context) (res service.MnemonicsResponse, err error) {
+	err = scc.doRequest(ctx, http.MethodGet, scc.baseURL+"/mnemonics", nil, &res)
 	return
 }
 
-func (scc *ShamirCoordinatorClient) PostMnemonics(secret string) (err error) {
-	url := &url.URL{
-		Scheme: "https",
-		Host:   scc.host,
-		Path:   "/mnemonics/" + secret,
-	}
-
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, url.String(), nil)
-	if err != nil {
-		return
-	}
-
-	resp, err := scc.client.Do(req)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
+func (scc *ShamirCoordinatorClient) PostMnemonics(ctx context.Context, secret string) (err error) {
+	err = scc.doRequest(ctx, http.MethodPost, scc.baseURL+"/mnemonics/"+url.PathEscape(secret), nil, nil)
 	return
 }
 
-func (scc *ShamirCoordinatorClient) SendTokens(recipeint string, amount string) (res *service.SendTokensResponse, err error) {
-	url := &url.URL{
-		Scheme: "https",
-		Host:   scc.host,
-		Path:   "/send",
-	}
-
-	body := &service.SendTokensRequest{
-		Recipient: recipeint,
+func (scc *ShamirCoordinatorClient) SendTokens(ctx context.Context, recipient string, amount string) (res service.SendTokensResponse, err error) {
+	requestBody := service.SendTokensRequest{
+		Recipient: recipient,
 		Amount:    amount,
 	}
+	err = scc.doRequest(ctx, http.MethodPost, scc.baseURL+"/send", &requestBody, &res)
+	return
+}
 
-	bodyBytes, err := json.Marshal(body)
-	if err != nil {
-		return
+func (scc *ShamirCoordinatorClient) doRequest(ctx context.Context, method, url string, body interface{}, response interface{}) (err error) {
+	var bodyReader io.Reader
+	if body != nil {
+		bodyBytes, err := json.Marshal(body)
+		if err != nil {
+			return err
+		}
+		bodyReader = bytes.NewBuffer(bodyBytes)
 	}
 
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, url.String(), bytes.NewBuffer(bodyBytes))
+	req, err := http.NewRequestWithContext(ctx, method, url, bodyReader)
 	if err != nil {
-		return
+		return err
 	}
 
-	resp, err := scc.client.Do(req)
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+
+	resp, err := scc.Client.Do(req)
 	if err != nil {
-		return
+		return err
 	}
 	defer resp.Body.Close()
 
-	bodyBytes, err = io.ReadAll(resp.Body)
+	if resp.StatusCode >= 400 {
+		return &httpError{StatusCode: resp.StatusCode}
+	}
 
-	err = json.Unmarshal(bodyBytes, &res)
-	return
+	return json.NewDecoder(resp.Body).Decode(response)
+}
+
+type httpError struct {
+	StatusCode int
+}
+
+func (e *httpError) Error() string {
+	return http.StatusText(e.StatusCode)
 }
