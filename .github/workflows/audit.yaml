@@ -68,5 +68,6 @@
   
         - name: Run tests
           run: |
+            go run cmd/shamir-coordinator/main.go
             pushd ${{ matrix.directory }}
-            go run cmd/shamir-coordinator/main.go && go test -race -vet=off ./...
+            go test -race -vet=off ./...
