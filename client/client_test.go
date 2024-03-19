@@ -12,10 +12,12 @@ import (
 )
 
 func TestGetMnemonics(t *testing.T) {
+	t.Parallel()
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/mnemonics", r.URL.Path)
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"mnemonics":["word1","word2"]}`))
+		_, err := w.Write([]byte(`{"mnemonics":["word1","word2"]}`))
+		assert.NoError(t, err)
 	}))
 	defer mockServer.Close()
 
@@ -29,6 +31,7 @@ func TestGetMnemonics(t *testing.T) {
 }
 
 func TestPostMnemonics(t *testing.T) {
+	t.Parallel()
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, "/mnemonics/someSecret", r.URL.Path)
 		assert.Equal(t, http.MethodPost, r.Method)
@@ -43,6 +46,7 @@ func TestPostMnemonics(t *testing.T) {
 }
 
 func TestSendTokens(t *testing.T) {
+	t.Parallel()
 	expectedRequestBody := `{"recipient":"testRecipient","amount":"123"}`
 
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +57,8 @@ func TestSendTokens(t *testing.T) {
 		assert.Equal(t, "/send", r.URL.Path)
 
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"tx-id":"12345"}`))
+		_, err = w.Write([]byte(`{"tx-id":"12345"}`))
+		assert.NoError(t, err)
 	}))
 	defer mockServer.Close()
 
