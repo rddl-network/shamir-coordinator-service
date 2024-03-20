@@ -9,7 +9,7 @@ import (
 
 func (s *ShamirCoordinatorService) SendAsset(address string, amount string) (txID string, err error) {
 	txID, err = elements.SendToAddress(s.cfg.GetRPCConnectionString(), []string{
-		address,
+		`"` + address + `"`,
 		`"` + amount + `"`,
 		`""`,
 		`""`,
@@ -41,14 +41,14 @@ func (s *ShamirCoordinatorService) PrepareWallet(passphrase string) (err error) 
 	}
 	if !loaded {
 		// loaded wallet via RPC if not loaded
-		_, err = elements.LoadWallet(s.cfg.GetRPCConnectionString(), []string{s.cfg.RPCWalletName})
+		_, err = elements.LoadWallet(s.cfg.GetRPCConnectionString(), []string{`"` + s.cfg.RPCWalletName + `"`})
 		if err != nil {
 			fmt.Println("Error loading the wallet: " + err.Error())
 			return
 		}
 	}
 
-	_, err = elements.Walletpassphrase(s.cfg.GetRPCConnectionString(), []string{passphrase, strconv.Itoa(s.cfg.RPCEncTimeout)})
+	_, err = elements.Walletpassphrase(s.cfg.GetRPCConnectionString(), []string{`"` + passphrase + `"`, strconv.Itoa(s.cfg.RPCEncTimeout)})
 	if err != nil {
 		fmt.Println("Error decrypting the wallet: " + err.Error())
 		return
