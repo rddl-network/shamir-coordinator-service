@@ -200,6 +200,8 @@ github.com/rddl-network/elements-rpc v0.5.7 h1:9jC0tSAkMa1gJ2ZvBvBsD8GbZ47C/5s+a
 github.com/rddl-network/elements-rpc v0.5.7/go.mod h1:WOSYDMhq+V74lReSInnSejbdEyGI8hiQZSn4cSoFuxo=
 github.com/rddl-network/elements-rpc v0.5.8 h1:c3tnU9aLfqXz2GD4Dh/52OGCo6+6daXzWv37uEEO3f4=
 github.com/rddl-network/elements-rpc v0.5.8/go.mod h1:WOSYDMhq+V74lReSInnSejbdEyGI8hiQZSn4cSoFuxo=
+github.com/rddl-network/elements-rpc v1.0.0 h1:geFcsaD1t2ONxRC13semPpiOwsJl0ZCfkFT9UIKPZFk=
+github.com/rddl-network/elements-rpc v1.0.0/go.mod h1:E35cJMXZqe1iEo/AvjwSWn25mHZ4+y4gV8qj0lWle5c=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rogpeppe/go-internal v1.11.0 h1:cWPaGQEPrBb5/AsnsZesgZZ9yb1OQ+GOISoDNXVBh4M=
 github.com/rogpeppe/go-internal v1.11.0/go.mod h1:ddIwULY96R17DhadqLgMfk9H9tvdUzkipdSkR5nkCZA=
@@ -228,6 +230,7 @@ github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o
 github.com/stretchr/testify v1.8.3/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
+github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 github.com/subosito/gotenv v1.4.2 h1:X1TuBLAMDFbaTAChgCBLu3DU3UPyELpnF2jjJ2cz/S8=
 github.com/subosito/gotenv v1.4.2/go.mod h1:ayKnFf/c6rvx/2iiLrJUk1e6plDbT3edrFNGqEflhK0=
 github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS4MhqMhdFk5YI=
