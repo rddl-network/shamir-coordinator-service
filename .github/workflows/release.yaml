@@ -20,9 +20,14 @@ on:
         description: "Files"
         required: true
         default: "shamir-coordinator"
+      directory:
+        required: false
+        type: string
+        default: ''
 
 jobs:
   release:
+    if: github.event.inputs.direcotry == ''
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -66,3 +71,12 @@ jobs:
           tag_name: ${{ github.event.inputs.tag }}
           fail_on_unmatched_files: true
           generate_release_notes: true
+
+  release_client:
+    if: github.event.inputs.direcotry != ''
+    uses: rddl-network/github-actions/.github/workflows/release.yaml@main
+    with:
+      tag: ${{ github.event.inputs.tag }}
+      prerelease: ${{ fromJSON(github.event.inputs.prerelease) }}
+      files: ${{ github.event.inputs.files }}
+      directory: ${{ github.event.inputs.directory }}
