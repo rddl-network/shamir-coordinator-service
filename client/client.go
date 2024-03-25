@@ -12,9 +12,9 @@ import (
 )
 
 type IShamirCoordinatorClient interface {
-	GetMnemonics() (res service.MnemonicsResponse, err error)
-	PostMnemonics(secret string) (err error)
-	SendTokens(recipient string, amount string) (res service.SendTokensResponse, err error)
+	GetMnemonics(ctx context.Context) (res service.MnemonicsResponse, err error)
+	PostMnemonics(ctx context.Context, secret string) (err error)
+	SendTokens(ctx context.Context, recipient string, amount string) (res service.SendTokensResponse, err error)
 }
 
 type ShamirCoordinatorClient struct {

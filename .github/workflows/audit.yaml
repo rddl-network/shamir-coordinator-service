@@ -10,6 +10,7 @@
       strategy:
         matrix:
           go-version: [ '1.21' ]
+          directory: [ './', 'client' ]
       steps:
         - name: Checkout
           uses: actions/checkout@v3
@@ -28,16 +29,24 @@
             popd
 
         - name: Verify dependencies
-          run: go mod verify
+          run: |
+            pushd ${{ matrix.directory }}
+            go mod verify
   
         - name: Build
-          run: go build -v ./...
+          run: |
+            pushd ${{ matrix.directory }}
+            go build -v ./...
   
         - name: Run gofmt
-          run: if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then exit 1; fi
+          run: |
+            pushd ${{ matrix.directory }}
+            if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then exit 1; fi
   
         - name: Run go vet
-          run: go vet ./...
+          run: |
+            pushd ${{ matrix.directory }}
+            go vet ./...
   
         - name: Install staticcheck
           run: go install honnef.co/go/tools/cmd/staticcheck@latest
@@ -45,13 +54,20 @@
         - name: Run staticcheck
           env:
             LINT: "//lint:file-ignore SA1019 Ignore all deprecation errors, it's generated"
-          run: staticcheck ./...
+          run: |
+            pushd ${{ matrix.directory }}
+            staticcheck ./...
   
         - name: Install golangci-lint
           run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
   
         - name: Run golangci-lint
-          run: golangci-lint run --timeout 5m
+          run: |
+            pushd ${{ matrix.directory }}
+            golangci-lint run --timeout 5m
   
         - name: Run tests
-          run: go run cmd/shamir-coordinator/main.go && go test -race -vet=off ./...
+          run: |
+            go run cmd/shamir-coordinator/main.go
+            pushd ${{ matrix.directory }}
+            go test -race -vet=off ./...
