@@ -1,38 +1,38 @@
 package service
 
 import (
+	"context"
 	"fmt"
-	"strings"
+	"log"
 )
 
-func (s *ShamirCoordinatorService) CollectMnemonics() ([]string, error) {
-	mnemonics := []string{}
-	shareHolderURIs := strings.Split(s.cfg.ShareHolderList, ",")
-	for _, shareHolderURI := range shareHolderURIs {
-		mnemonic, err := (s.ssc).GetMnemonic(shareHolderURI)
+func (s *ShamirCoordinatorService) CollectMnemonics() (mnemonics []string, err error) {
+	for host, client := range s.sscs {
+		resp, err := client.GetMnemonic(context.Background())
 		if err != nil {
-			fmt.Printf("Error collecting a share from %s: %s\n", shareHolderURI, err.Error())
+			log.Printf("Error collecting a share from %s: %s\n", host, err.Error())
 		}
-		mnemonics = append(mnemonics, mnemonic)
+		mnemonics = append(mnemonics, resp.Mnemonic)
 	}
-	return mnemonics, nil
+	return
 }
 
 func (s *ShamirCoordinatorService) deployMnemonics(mnemonics []string) (err error) {
-	fmt.Println("ShareHolderUri: " + s.cfg.ShareHolderList)
-	shareHolderURIs := strings.Split(s.cfg.ShareHolderList, ",")
-	if len(shareHolderURIs) != len(mnemonics) {
-		fmt.Println("Error: the amount of shareholders does not match the amount of mnemonics to be deployed: %i shareholders : %i mnemonics",
-			len(shareHolderURIs), len(mnemonics))
+	if len(mnemonics) != len(s.sscs) {
+		return fmt.Errorf("error: the amount of shareholders does not match the amount of mnemonics to be deployed: %d shareholders : %d mnemonics",
+			len(s.sscs), len(mnemonics),
+		)
 	}
-	for index, shareHolderURI := range shareHolderURIs {
-		fmt.Println("ShareHolderUri: " + shareHolderURI)
-		err = (s.ssc).PostMnemonic(shareHolderURI, mnemonics[index])
+
+	i := 0
+	for host, client := range s.sscs {
+		err = client.PostMnemonic(context.Background(), mnemonics[i])
 		if err != nil {
-			fmt.Printf("Error deploying the sahres at index %d, shareholder %s: %s\n", index, shareHolderURI, err.Error())
-			fmt.Println("Attention: redeploy share as there is most likely a inconsistent state")
+			log.Printf("Error deploying the shares at host %s: %s\n", host, err.Error())
+			log.Println("Attention: redeploy share as there is most likely a inconsistent state")
 			return
 		}
+		i++
 	}
 	return
 }

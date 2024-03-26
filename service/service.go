@@ -5,19 +5,20 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rddl-network/shamir-coordinator-service/config"
+	"github.com/rddl-network/shamir-shareholder-service/client"
 )
 
 type ShamirCoordinatorService struct {
 	cfg             *config.Config
 	Router          *gin.Engine
-	ssc             IShamirShareholderClient
+	sscs            map[string]client.IShamirShareholderClient
 	slip39Interface ISlip39
 }
 
-func NewShamirCoordinatorService(cfg *config.Config, ssc IShamirShareholderClient, slip39Interface ISlip39) *ShamirCoordinatorService {
+func NewShamirCoordinatorService(cfg *config.Config, sscs map[string]client.IShamirShareholderClient, slip39Interface ISlip39) *ShamirCoordinatorService {
 	service := &ShamirCoordinatorService{}
 	service.cfg = cfg
-	service.ssc = ssc
+	service.sscs = sscs
 	service.slip39Interface = slip39Interface
 
 	gin.SetMode(gin.ReleaseMode)

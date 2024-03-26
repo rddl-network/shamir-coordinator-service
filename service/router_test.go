@@ -8,11 +8,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	elements "github.com/rddl-network/elements-rpc"
 	elementsmocks "github.com/rddl-network/elements-rpc/utils/mocks"
 	"github.com/rddl-network/shamir-coordinator-service/config"
 	"github.com/rddl-network/shamir-coordinator-service/service"
 	"github.com/rddl-network/shamir-coordinator-service/testutil"
+	"github.com/rddl-network/shamir-shareholder-service/client"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,33 +24,28 @@ func TestTestMode(t *testing.T) {
 	mycfg := *cfg
 	mycfg.TestMode = true
 
-	ssc := testutil.NewShamirShareholderClientMock(&mycfg)
+	sscs := make(map[string]client.IShamirShareholderClient)
+	ctrl := gomock.NewController(t)
+	ssc := testutil.NewMockIShamirShareholderClient(ctrl)
+	sscs["client"] = ssc
+
 	slip39mock := &testutil.Slip39Mock{}
-	s := service.NewShamirCoordinatorService(&mycfg, ssc, slip39mock)
+	s := service.NewShamirCoordinatorService(&mycfg, sscs, slip39mock)
 
 	routes := s.GetRoutes()
 	assert.Equal(t, 3, len(routes))
 }
 
 func TestNotTestMode(t *testing.T) {
-	cfg, err := config.LoadConfig("../")
-	assert.NoError(t, err)
-	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	slip39mock := &testutil.Slip39Mock{}
-	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
+	s := testutil.SetupTestService(t)
 
 	routes := s.GetRoutes()
 	assert.Equal(t, 2, len(routes))
 }
 
 func TestSendPass(t *testing.T) {
-	cfg, err := config.LoadConfig("../")
-	assert.NoError(t, err)
-
 	elements.Client = &elementsmocks.MockClient{}
-	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	slip39mock := &testutil.Slip39Mock{}
-	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
+	s := testutil.SetupTestService(t)
 
 	request := service.SendTokensRequest{Amount: "123.456", Recipient: "1111111111111111111111111111"}
 	jsonString, err := json.Marshal(request)
@@ -63,13 +60,8 @@ func TestSendPass(t *testing.T) {
 }
 
 func TestSendFail(t *testing.T) {
-	cfg, err := config.LoadConfig("../")
-	assert.NoError(t, err)
-
 	elements.Client = &elementsmocks.MockClient{}
-	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	slip39mock := &testutil.Slip39Mock{}
-	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
+	s := testutil.SetupTestService(t)
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/send", bytes.NewBufferString("testobject"))
@@ -80,11 +72,7 @@ func TestSendFail(t *testing.T) {
 }
 
 func TestDeployCheckHex(t *testing.T) {
-	cfg, err := config.LoadConfig("../")
-	assert.NoError(t, err)
-	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	slip39mock := &testutil.Slip39Mock{}
-	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
+	s := testutil.SetupTestService(t)
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/mnemonics/öaksjdf", nil)
@@ -95,11 +83,7 @@ func TestDeployCheckHex(t *testing.T) {
 }
 
 func TestDeployCheckLength(t *testing.T) {
-	cfg, err := config.LoadConfig("../")
-	assert.NoError(t, err)
-	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	slip39mock := &testutil.Slip39Mock{}
-	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
+	s := testutil.SetupTestService(t)
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/mnemonics/abcdef", nil)
@@ -117,11 +101,7 @@ func TestDeployCheckLength(t *testing.T) {
 }
 
 func TestDeployPass(t *testing.T) {
-	cfg, err := config.LoadConfig("../")
-	assert.NoError(t, err)
-	ssc := testutil.NewShamirShareholderClientMock(cfg)
-	slip39mock := &service.Slip39Interface{}
-	s := service.NewShamirCoordinatorService(cfg, ssc, slip39mock)
+	s := testutil.SetupTestServiceWithSlip39Interface(t)
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/mnemonics/abcdefabcdefabcdefabcdefabcdef23", nil)
