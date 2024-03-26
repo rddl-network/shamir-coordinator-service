@@ -11,11 +11,11 @@ import (
 type ShamirCoordinatorService struct {
 	cfg             *config.Config
 	Router          *gin.Engine
-	sscs            []client.IShamirShareholderClient
+	sscs            map[string]client.IShamirShareholderClient
 	slip39Interface ISlip39
 }
 
-func NewShamirCoordinatorService(cfg *config.Config, sscs []client.IShamirShareholderClient, slip39Interface ISlip39) *ShamirCoordinatorService {
+func NewShamirCoordinatorService(cfg *config.Config, sscs map[string]client.IShamirShareholderClient, slip39Interface ISlip39) *ShamirCoordinatorService {
 	service := &ShamirCoordinatorService{}
 	service.cfg = cfg
 	service.sscs = sscs

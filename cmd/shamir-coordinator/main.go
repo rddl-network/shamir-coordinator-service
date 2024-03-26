@@ -18,14 +18,14 @@ func main() {
 
 	// initializing all shareholder clients
 	shareholderHosts := strings.Split(cfg.ShareHolderList, ",")
-	sscs := make([]client.IShamirShareholderClient, len(shareholderHosts))
-	for i, host := range shareholderHosts {
+	sscs := make(map[string]client.IShamirShareholderClient)
+	for _, host := range shareholderHosts {
 		mTLSClient, err := service.Get2wayTLSClient(cfg)
 		if err != nil {
 			log.Fatalf("fatal error setting up mutual TLS shareholder client")
 		}
 		ssc := client.NewShamirShareholderClient(host, mTLSClient)
-		sscs[i] = ssc
+		sscs[host] = ssc
 	}
 
 	slip39Interface := &service.Slip39Interface{}

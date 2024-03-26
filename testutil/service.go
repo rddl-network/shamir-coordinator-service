@@ -1,6 +1,7 @@
 package testutil
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -33,15 +34,15 @@ func SetupTestServiceWithSlip39Interface(t *testing.T) *service.ShamirCoordinato
 	return service.NewShamirCoordinatorService(cfg, sscs, slip39Mock)
 }
 
-func createShamirShareholderMocks(t *testing.T, n int) []client.IShamirShareholderClient {
+func createShamirShareholderMocks(t *testing.T, n int) map[string]client.IShamirShareholderClient {
 	ctrl := gomock.NewController(t)
-	sscs := make([]client.IShamirShareholderClient, n)
+	sscs := make(map[string]client.IShamirShareholderClient)
 
-	for i := range sscs {
+	for i := 0; i < n; i++ {
 		ssc := NewMockIShamirShareholderClient(ctrl)
 		ssc.EXPECT().GetMnemonic(gomock.Any()).Return(shareholder.MnemonicBody{}, nil).AnyTimes()
 		ssc.EXPECT().PostMnemonic(gomock.Any(), gomock.Any()).Return(nil).AnyTimes()
-		sscs[i] = ssc
+		sscs[strconv.Itoa(i)] = ssc
 	}
 
 	return sscs

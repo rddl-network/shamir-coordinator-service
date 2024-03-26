@@ -24,11 +24,13 @@ func TestTestMode(t *testing.T) {
 	mycfg := *cfg
 	mycfg.TestMode = true
 
+	sscs := make(map[string]client.IShamirShareholderClient)
 	ctrl := gomock.NewController(t)
 	ssc := testutil.NewMockIShamirShareholderClient(ctrl)
+	sscs["client"] = ssc
 
 	slip39mock := &testutil.Slip39Mock{}
-	s := service.NewShamirCoordinatorService(&mycfg, []client.IShamirShareholderClient{ssc}, slip39mock)
+	s := service.NewShamirCoordinatorService(&mycfg, sscs, slip39mock)
 
 	routes := s.GetRoutes()
 	assert.Equal(t, 3, len(routes))
