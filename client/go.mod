@@ -36,8 +36,8 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rddl-network/bc-slip39-go v0.1.3 // indirect
 	github.com/rddl-network/elements-rpc v1.0.0 // indirect
-	github.com/rddl-network/shamir-shareholder-service v0.1.1 // indirect
-	github.com/rddl-network/shamir-shareholder-service/client v0.0.1 // indirect
+	github.com/rddl-network/shamir-shareholder-service v0.1.2 // indirect
+	github.com/rddl-network/shamir-shareholder-service/client v0.0.2 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
