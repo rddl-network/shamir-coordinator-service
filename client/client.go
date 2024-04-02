@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/rddl-network/shamir-coordinator-service/service"
 )
@@ -77,7 +78,7 @@ func (scc *ShamirCoordinatorClient) doRequest(ctx context.Context, method, url s
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		return &httpError{StatusCode: resp.StatusCode}
+		return &httpError{StatusCode: resp.StatusCode, Msg: strings.Join(resp.Header["Error"], "\n")}
 	}
 
 	if response != nil {
@@ -89,8 +90,9 @@ func (scc *ShamirCoordinatorClient) doRequest(ctx context.Context, method, url s
 
 type httpError struct {
 	StatusCode int
+	Msg        string
 }
 
 func (e *httpError) Error() string {
-	return http.StatusText(e.StatusCode)
+	return http.StatusText(e.StatusCode) + ": " + e.Msg
 }
