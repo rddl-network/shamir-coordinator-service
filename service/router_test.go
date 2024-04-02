@@ -67,7 +67,7 @@ func TestSendFail(t *testing.T) {
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/send", bytes.NewBufferString("testobject"))
 	assert.NoError(t, err)
 	s.Router.ServeHTTP(w, req)
-	assert.Contains(t, w.Body.String(), "error")
+	assert.Contains(t, w.Body.String(), "Error")
 	assert.Equal(t, 400, w.Code)
 }
 
@@ -78,7 +78,7 @@ func TestDeployCheckHex(t *testing.T) {
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/mnemonics/öaksjdf", nil)
 	assert.NoError(t, err)
 	s.Router.ServeHTTP(w, req)
-	assert.Equal(t, "{\"error\":\"the secret has to be send in valid hex string format\"}", w.Body.String())
+	assert.Equal(t, "{\"Error\":\"the secret has to be send in valid hex string format\"}", w.Body.String())
 	assert.Equal(t, 500, w.Code)
 }
 
@@ -89,14 +89,14 @@ func TestDeployCheckLength(t *testing.T) {
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/mnemonics/abcdef", nil)
 	assert.NoError(t, err)
 	s.Router.ServeHTTP(w, req)
-	assert.Equal(t, "{\"error\":\"the secret has to be of length 32 or 64 (16 or 32 byte)\"}", w.Body.String())
+	assert.Equal(t, "{\"Error\":\"the secret has to be of length 32 or 64 (16 or 32 byte)\"}", w.Body.String())
 	assert.Equal(t, 500, w.Code)
 
 	w = httptest.NewRecorder()
 	req, err = http.NewRequestWithContext(context.Background(), http.MethodPost, "/mnemonics/abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdef", nil)
 	assert.NoError(t, err)
 	s.Router.ServeHTTP(w, req)
-	assert.Equal(t, "{\"error\":\"the secret has to be of length 32 or 64 (16 or 32 byte)\"}", w.Body.String())
+	assert.Equal(t, "{\"Error\":\"the secret has to be of length 32 or 64 (16 or 32 byte)\"}", w.Body.String())
 	assert.Equal(t, 500, w.Code)
 }
 
