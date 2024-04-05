@@ -12,16 +12,18 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
-
+	s.logger.Info("preparing to send " + request.Amount + " tokens to " + request.Recipient)
 	mnemonics, err := s.CollectMnemonics()
 	// This code snippet is handling an error scenario in the `sendTokens` function of the
 	// `ShamirCoordinatorService`.
 	if err != nil {
+		s.logger.Error("error collecting the shares: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error collecting the shares"})
 		return
 	}
 	passphrase, err := s.RecoverSeed(mnemonics[:s.cfg.ShamirThreshold])
 	if err != nil {
+		s.logger.Error("error computing the seeds: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error computing the seeds: " + err.Error()})
 		return
 	}
@@ -29,16 +31,19 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	// prepare the wallet, loading and unlocking
 	err = s.PrepareWallet(passphrase)
 	if err != nil {
+		s.logger.Error("error loading the wallet: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error loading the wallet " + err.Error()})
 		return
 	}
 	// send asset
 	txID, err := s.SendAsset(request.Recipient, request.Amount)
 	if err != nil {
+		s.logger.Error("error sending the transaction: " + err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error sending/broadcasting the transaction"})
 		return
 	}
 
+	s.logger.Info("successfully sended tx with id : " + txID + " to " + request.Recipient)
 	var resBody SendTokensResponse
 	resBody.TxID = txID
 	c.JSON(http.StatusOK, resBody)

@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	slip39 "github.com/rddl-network/bc-slip39-go"
@@ -22,11 +23,13 @@ func (s *ShamirCoordinatorService) CreateMnemonics(hexSecret string) (mnemonics 
 	}
 	secret, err := hex.DecodeString(hexSecret)
 	if err != nil {
+		s.logger.Error("could not decode hex string " + err.Error())
 		return
 	}
 	iterationExponent := uint8(0)
 	count, wordsInEachShare, sharesBuffer, err := s.slip39Interface.Generate(groupThreshold, groups, secret, password, iterationExponent, slip39.Random())
 	if err != nil {
+		s.logger.Error("could not create words " + err.Error())
 		return
 	}
 
@@ -37,6 +40,7 @@ func (s *ShamirCoordinatorService) CreateMnemonics(hexSecret string) (mnemonics 
 		words := sharesBuffer[start:end]
 		resultString, err := s.slip39Interface.StringsForWords(words, wordsInEachShare)
 		if err != nil {
+			s.logger.Error("could not create a mnemonic string for participant " + strconv.Itoa(index) + ": " + err.Error())
 			return nil, err
 		}
 		mnemonics[index] = resultString
@@ -44,9 +48,10 @@ func (s *ShamirCoordinatorService) CreateMnemonics(hexSecret string) (mnemonics 
 
 	if len(mnemonics) != s.cfg.ShamirShares {
 		msg := fmt.Sprintf("wrong amount of shares: %d instead of %d", len(mnemonics), s.cfg.ShamirShares)
-		fmt.Println(msg)
+		s.logger.Error(msg)
 		err = errors.New(msg)
 	}
+	s.logger.Error("Successfully created the requested mnemonics")
 	return
 }
 
@@ -58,12 +63,14 @@ func (s *ShamirCoordinatorService) RecoverSeed(mnemonics []string) (seed string,
 		wordsInEachShare := len(strings.Fields(selectedShareString))
 		resultWords, err := s.slip39Interface.WordsForStrings(selectedShareString, wordsInEachShare)
 		if err != nil {
+			s.logger.Error("Unable to create a word array " + strconv.Itoa(index) + ": " + err.Error())
 			return "", err
 		}
 		selectedSharesWords[index] = resultWords
 	}
 	secret, err := s.slip39Interface.Combine(selectedSharesWords, password)
 	if err != nil {
+		s.logger.Error("Mnemonic recovery failed: " + err.Error())
 		return
 	}
 	seed = hex.EncodeToString(secret)

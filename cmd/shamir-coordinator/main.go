@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -32,6 +31,6 @@ func main() {
 	SCoordinator := service.NewShamirCoordinatorService(cfg, sscs, slip39Interface)
 	err = SCoordinator.Run()
 	if err != nil {
-		fmt.Print(err.Error())
+		service.GetLogger().Error(err.Error())
 	}
 }
