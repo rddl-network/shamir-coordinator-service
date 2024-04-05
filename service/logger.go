@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/rddl-network/rddl-2-plmnt-service/config"
+	"github.com/rddl-network/shamir-coordinator-service/config"
 )
 
 type AppLogger struct {
@@ -19,7 +19,7 @@ func GetLogger() AppLogger {
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 
 	// Read log level from environment variable
-	cfg, err := config.LoadConfig() // LOG_LEVEL should be set to "debug", "info", "warn", or "error"
+	cfg, err := config.LoadConfig("./") // LOG_LEVEL should be set to "debug", "info", "warn", or "error"
 	if err != nil {
 		panic("cannot load config")
 	}
