@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 )
@@ -26,8 +27,8 @@ func (s *ShamirCoordinatorService) deployMnemonics(mnemonics []string) (err erro
 			len(s.sscs), len(mnemonics),
 		)
 		s.logger.Error(msg)
-		return fmt.Errorf(msg)
-
+		err = errors.New(msg)
+		return
 	}
 
 	i := 0
@@ -38,9 +39,8 @@ func (s *ShamirCoordinatorService) deployMnemonics(mnemonics []string) (err erro
 			s.logger.Error("Error deploying the shares at host %s: %s\n", host, err.Error())
 			s.logger.Error("Attention: redeploy share as there is most likely a inconsistent state")
 			return
-		} else {
-			s.logger.Info("successfully deployed")
 		}
+		s.logger.Info("successfully deployed")
 		i++
 	}
 	return

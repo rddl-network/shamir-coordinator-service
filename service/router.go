@@ -6,6 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	errCompMsg = "error computing the seeds: "
+)
+
 func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	var request SendTokensRequest
 	if err := c.BindJSON(&request); err != nil {
@@ -23,8 +27,8 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	}
 	passphrase, err := s.RecoverSeed(mnemonics[:s.cfg.ShamirThreshold])
 	if err != nil {
-		s.logger.Error("error computing the seeds: " + err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error computing the seeds: " + err.Error()})
+		s.logger.Error(errCompMsg + err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": errCompMsg + err.Error()})
 		return
 	}
 
@@ -82,7 +86,7 @@ func (s *ShamirCoordinatorService) CollectShares(c *gin.Context) {
 	}
 	seed, err := s.RecoverSeed(mnemonics[:s.cfg.ShamirThreshold])
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error computing the seeds: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": errCompMsg + err.Error()})
 		return
 	}
 	var resBody MnemonicsResponse
