@@ -9,13 +9,10 @@ import (
 	"github.com/rddl-network/shamir-coordinator-service/service"
 	"github.com/rddl-network/shamir-shareholder-service/client"
 	shareholder "github.com/rddl-network/shamir-shareholder-service/service"
-	"github.com/stretchr/testify/assert"
 )
 
 func SetupTestService(t *testing.T) *service.ShamirCoordinatorService {
-	cfg, err := config.LoadConfig("../")
-	assert.NoError(t, err)
-
+	cfg := config.GetConfig()
 	sscs := createShamirShareholderMocks(t, cfg.ShamirShares)
 
 	slip39Mock := &Slip39Mock{}
@@ -24,9 +21,7 @@ func SetupTestService(t *testing.T) *service.ShamirCoordinatorService {
 }
 
 func SetupTestServiceWithSlip39Interface(t *testing.T) *service.ShamirCoordinatorService {
-	cfg, err := config.LoadConfig("../")
-	assert.NoError(t, err)
-
+	cfg := config.GetConfig()
 	sscs := createShamirShareholderMocks(t, cfg.ShamirShares)
 
 	slip39Mock := &service.Slip39Interface{}
