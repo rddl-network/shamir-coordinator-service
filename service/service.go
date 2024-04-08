@@ -13,10 +13,11 @@ type ShamirCoordinatorService struct {
 	Router          *gin.Engine
 	sscs            map[string]client.IShamirShareholderClient
 	slip39Interface ISlip39
+	logger          AppLogger
 }
 
 func NewShamirCoordinatorService(cfg *config.Config, sscs map[string]client.IShamirShareholderClient, slip39Interface ISlip39) *ShamirCoordinatorService {
-	service := &ShamirCoordinatorService{}
+	service := &ShamirCoordinatorService{logger: GetLogger()}
 	service.cfg = cfg
 	service.sscs = sscs
 	service.slip39Interface = slip39Interface
@@ -34,7 +35,7 @@ func NewShamirCoordinatorService(cfg *config.Config, sscs map[string]client.ISha
 func (s *ShamirCoordinatorService) Run() (err error) {
 	err = s.startWebService()
 	if err != nil {
-		fmt.Print(err.Error())
+		s.logger.Error("error", err.Error())
 	}
 	return err
 }

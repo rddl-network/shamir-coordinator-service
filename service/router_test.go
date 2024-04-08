@@ -19,8 +19,7 @@ import (
 )
 
 func TestTestMode(t *testing.T) {
-	cfg, err := config.LoadConfig("../")
-	assert.NoError(t, err)
+	cfg := config.GetConfig()
 	mycfg := *cfg
 	mycfg.TestMode = true
 

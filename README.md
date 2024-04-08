@@ -90,4 +90,5 @@ shamir-shares = 3
 shamir-threshold = 2
 share-holder-list = 'https://localhost:8081,https://localhost:8082,https://localhost:8083'
 test-mode = false
+log-level = debug
 ```
