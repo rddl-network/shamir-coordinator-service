@@ -18,14 +18,8 @@ func GetLogger() AppLogger {
 	logger = log.NewLogfmtLogger(os.Stderr)
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC, "caller", log.DefaultCaller)
 
-	// Read log level from environment variable
-	cfg, err := config.LoadConfig("./") // LOG_LEVEL should be set to "debug", "info", "warn", or "error"
-	if err != nil {
-		panic("cannot load config")
-	}
-
 	// Set log level
-	switch cfg.LogLevel {
+	switch config.GetConfig().LogLevel {
 	case "debug":
 		logger = level.NewFilter(logger, level.AllowDebug())
 	case "info":
