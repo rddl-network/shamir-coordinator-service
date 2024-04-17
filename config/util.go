@@ -32,6 +32,7 @@ func LoadConfig(path string) (cfg *Config, err error) {
 		cfg.ShamirThreshold = v.GetInt("shamir-threshold")
 		cfg.AssetID = v.GetString("asset-id")
 		cfg.ShareHolderList = v.GetString("share-holder-list")
+		cfg.LogLevel = v.GetString("log-level")
 
 		if err := viper.Unmarshal(&cfg); err != nil {
 			log.Fatal(err)

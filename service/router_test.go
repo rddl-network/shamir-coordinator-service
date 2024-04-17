@@ -11,6 +11,7 @@ import (
 	"github.com/golang/mock/gomock"
 	elements "github.com/rddl-network/elements-rpc"
 	elementsmocks "github.com/rddl-network/elements-rpc/utils/mocks"
+	"github.com/rddl-network/go-logger"
 	"github.com/rddl-network/shamir-coordinator-service/config"
 	"github.com/rddl-network/shamir-coordinator-service/service"
 	"github.com/rddl-network/shamir-coordinator-service/testutil"
@@ -30,7 +31,7 @@ func TestTestMode(t *testing.T) {
 	sscs["client"] = ssc
 
 	slip39mock := &testutil.Slip39Mock{}
-	s := service.NewShamirCoordinatorService(&mycfg, sscs, slip39mock)
+	s := service.NewShamirCoordinatorService(&mycfg, sscs, slip39mock, logger.GetLogger(logger.DEBUG))
 
 	routes := s.GetRoutes()
 	assert.Equal(t, 3, len(routes))
