@@ -28,6 +28,10 @@ github.com/gin-contrib/sse v0.1.0 h1:Y/yl/+YNO8GZSjAhjMsSuLt29uWRFHdHYUb5lYOV9qE
 github.com/gin-contrib/sse v0.1.0/go.mod h1:RHrZQHXnP2xjPF+u1gW/2HnVO7nvIa9PG3Gm+fLHvGI=
 github.com/gin-gonic/gin v1.9.1 h1:4idEAncQnU5cB7BeOkPtxjfCSye0AAm1R0RVIqJ+Jmg=
 github.com/gin-gonic/gin v1.9.1/go.mod h1:hPrL7YrpYKXt5YId3A/Tnip5kqbEAP+KLuI3SUcPTeU=
+github.com/go-kit/log v0.2.1 h1:MRVx0/zhvdseW+Gza6N9rVzU/IVzaeE1SFI4raAhmBU=
+github.com/go-kit/log v0.2.1/go.mod h1:NwTd00d/i8cPZ3xOwwiv2PO5MOcx78fFErGNcVmBjv0=
+github.com/go-logfmt/logfmt v0.5.1 h1:otpy5pqBCBZ1ng9RQ0dPu4PN7ba75Y/aA+UpowDyNVA=
+github.com/go-logfmt/logfmt v0.5.1/go.mod h1:WYhtIu8zTZfxdn5+rREduYbwxfcBr/Vr6KEVveWlfTs=
 github.com/go-playground/assert/v2 v2.2.0 h1:JvknZsQTYeFEAhQwI4qEt9cyV5ONwRHC+lYKSsYSR8s=
 github.com/go-playground/assert/v2 v2.2.0/go.mod h1:VDjEfimB/XKnb+ZQfWdccd7VUvScMdVu0Titje2rxJ4=
 github.com/go-playground/locales v0.14.1 h1:EWaQ/wswjilfKLTECiXz7Rh+3BjFhfDFKv/oXslEjJA=
@@ -89,6 +93,8 @@ github.com/rddl-network/bc-slip39-go v0.1.3 h1:vKGsoehPG84qBw+2MzIWCJmq0bBGGpy7/
 github.com/rddl-network/bc-slip39-go v0.1.3/go.mod h1:WmJlBZ3rCVLhgWqqcVkZHOTECECQhpbT8cZm8TCRxmk=
 github.com/rddl-network/elements-rpc v1.0.0 h1:geFcsaD1t2ONxRC13semPpiOwsJl0ZCfkFT9UIKPZFk=
 github.com/rddl-network/elements-rpc v1.0.0/go.mod h1:E35cJMXZqe1iEo/AvjwSWn25mHZ4+y4gV8qj0lWle5c=
+github.com/rddl-network/go-logger v0.0.2 h1:Tlmatv6uROq3ZQrojU3ucJ2GeIViGIQQ2OFFLCQMXNA=
+github.com/rddl-network/go-logger v0.0.2/go.mod h1:HIWf1yOLW6nyXBxFiuVqc+YegNI9/j9RZ4u4SPWhuJ8=
 github.com/rddl-network/shamir-shareholder-service v0.1.2 h1:5eL5151avFIx2rIDVb1uKi+2HPHKo+Wh7YpUjxjSjMc=
 github.com/rddl-network/shamir-shareholder-service v0.1.2/go.mod h1:xap4xRvHTZaAMQGxwrqns+6bF6PEyFLiQe6li1NqLx0=
 github.com/rddl-network/shamir-shareholder-service/client v0.0.2 h1:OLVFb9guqgXyAMbTSJ3NWUERgdEGVb2r1maDdLadfWc=

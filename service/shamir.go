@@ -44,7 +44,7 @@ func (s *ShamirCoordinatorService) CreateMnemonics(hexSecret string) (mnemonics 
 
 	if len(mnemonics) != s.cfg.ShamirShares {
 		msg := fmt.Sprintf("wrong amount of shares: %d instead of %d", len(mnemonics), s.cfg.ShamirShares)
-		fmt.Println(msg)
+		s.logger.Error("msg", msg)
 		err = errors.New(msg)
 	}
 	return

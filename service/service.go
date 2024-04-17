@@ -37,7 +37,7 @@ func NewShamirCoordinatorService(cfg *config.Config, sscs map[string]client.ISha
 func (s *ShamirCoordinatorService) Run() (err error) {
 	err = s.startWebService()
 	if err != nil {
-		fmt.Print(err.Error())
+		s.logger.Error("msg", err.Error())
 	}
 	return err
 }

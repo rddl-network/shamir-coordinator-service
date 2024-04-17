@@ -43,7 +43,7 @@ type Config struct {
 	ShamirThreshold int    `json:"shamir-threshold"  mapstructure:"shamir-threshold"`
 	ShamirShares    int    `json:"shamir-shares"     mapstructure:"shamir-shares"`
 	TestMode        bool   `json:"test-mode"         mapstructure:"test-mode"`
-	LogLevel        string `json:"log-level"  		 mapstructure:"log-level"`
+	LogLevel        string `json:"log-level"         mapstructure:"log-level"`
 }
 
 // global singleton

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"strconv"
 
 	elements "github.com/rddl-network/elements-rpc"
@@ -37,20 +36,20 @@ func (s *ShamirCoordinatorService) PrepareWallet(passphrase string) (err error) 
 	// the wallet is expected to be loaded, verify if it's loaded
 	loaded, err := s.IsWalletLoaded(s.cfg.GetRPCConnectionString(), s.cfg.RPCWalletName)
 	if err != nil {
-		fmt.Println("Error listing the wallets: " + err.Error())
+		s.logger.Error("msg", "Error listing the wallets: "+err.Error())
 	}
 	if !loaded {
 		// loaded wallet via RPC if not loaded
 		_, err = elements.LoadWallet(s.cfg.GetRPCConnectionString(), []string{`"` + s.cfg.RPCWalletName + `"`})
 		if err != nil {
-			fmt.Println("Error loading the wallet: " + err.Error())
+			s.logger.Error("msg", "Error loading the wallet: "+err.Error())
 			return
 		}
 	}
 
 	_, err = elements.Walletpassphrase(s.cfg.GetRPCConnectionString(), []string{`"` + passphrase + `"`, strconv.Itoa(s.cfg.RPCEncTimeout)})
 	if err != nil {
-		fmt.Println("Error decrypting the wallet: " + err.Error())
+		s.logger.Error("msg", "Error decrypting the wallet: "+err.Error())
 		return
 	}
 	return

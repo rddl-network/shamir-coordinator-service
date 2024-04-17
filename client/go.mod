@@ -18,6 +18,8 @@ require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.9.1 // indirect
+	github.com/go-kit/log v0.2.1 // indirect
+	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.19.0 // indirect
@@ -36,6 +38,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rddl-network/bc-slip39-go v0.1.3 // indirect
 	github.com/rddl-network/elements-rpc v1.0.0 // indirect
+	github.com/rddl-network/go-logger v0.0.2 // indirect
 	github.com/rddl-network/shamir-shareholder-service v0.1.2 // indirect
 	github.com/rddl-network/shamir-shareholder-service/client v0.0.2 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
