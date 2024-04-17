@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/rddl-network/go-logger"
 	"github.com/rddl-network/shamir-coordinator-service/config"
 	"github.com/rddl-network/shamir-shareholder-service/client"
 )
@@ -13,14 +14,16 @@ type ShamirCoordinatorService struct {
 	Router          *gin.Engine
 	sscs            map[string]client.IShamirShareholderClient
 	slip39Interface ISlip39
-	logger          AppLogger
+	logger          log.AppLogger
 }
 
-func NewShamirCoordinatorService(cfg *config.Config, sscs map[string]client.IShamirShareholderClient, slip39Interface ISlip39) *ShamirCoordinatorService {
-	service := &ShamirCoordinatorService{logger: GetLogger()}
-	service.cfg = cfg
-	service.sscs = sscs
-	service.slip39Interface = slip39Interface
+func NewShamirCoordinatorService(cfg *config.Config, sscs map[string]client.IShamirShareholderClient, slip39Interface ISlip39, logger log.AppLogger) *ShamirCoordinatorService {
+	service := &ShamirCoordinatorService{
+		cfg:             cfg,
+		sscs:            sscs,
+		slip39Interface: slip39Interface,
+		logger:          logger,
+	}
 
 	gin.SetMode(gin.ReleaseMode)
 	service.Router = gin.New()
