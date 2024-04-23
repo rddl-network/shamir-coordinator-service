@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	log "github.com/rddl-network/go-logger"
 	"github.com/rddl-network/shamir-coordinator-service/config"
 	"github.com/rddl-network/shamir-coordinator-service/service"
 	"github.com/rddl-network/shamir-shareholder-service/client"
@@ -16,8 +17,9 @@ func SetupTestService(t *testing.T) *service.ShamirCoordinatorService {
 	sscs := createShamirShareholderMocks(t, cfg.ShamirShares)
 
 	slip39Mock := &Slip39Mock{}
+	logger := log.GetLogger(log.DEBUG)
 
-	return service.NewShamirCoordinatorService(cfg, sscs, slip39Mock)
+	return service.NewShamirCoordinatorService(cfg, sscs, slip39Mock, logger)
 }
 
 func SetupTestServiceWithSlip39Interface(t *testing.T) *service.ShamirCoordinatorService {
@@ -25,8 +27,9 @@ func SetupTestServiceWithSlip39Interface(t *testing.T) *service.ShamirCoordinato
 	sscs := createShamirShareholderMocks(t, cfg.ShamirShares)
 
 	slip39Mock := &service.Slip39Interface{}
+	logger := log.GetLogger(log.DEBUG)
 
-	return service.NewShamirCoordinatorService(cfg, sscs, slip39Mock)
+	return service.NewShamirCoordinatorService(cfg, sscs, slip39Mock, logger)
 }
 
 func createShamirShareholderMocks(t *testing.T, n int) map[string]client.IShamirShareholderClient {
