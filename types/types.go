@@ -1,4 +1,4 @@
-package service
+package types
 
 type SendTokensRequest struct {
 	Recipient string `binding:"required" json:"recipient"`

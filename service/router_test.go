@@ -15,6 +15,7 @@ import (
 	"github.com/rddl-network/shamir-coordinator-service/config"
 	"github.com/rddl-network/shamir-coordinator-service/service"
 	"github.com/rddl-network/shamir-coordinator-service/testutil"
+	"github.com/rddl-network/shamir-coordinator-service/types"
 	"github.com/rddl-network/shamir-shareholder-service/client"
 	"github.com/stretchr/testify/assert"
 )
@@ -48,7 +49,7 @@ func TestSendPass(t *testing.T) {
 	elements.Client = &elementsmocks.MockClient{}
 	s := testutil.SetupTestService(t)
 
-	request := service.SendTokensRequest{Amount: "123.456", Recipient: "1111111111111111111111111111"}
+	request := types.SendTokensRequest{Amount: "123.456", Recipient: "1111111111111111111111111111"}
 	jsonString, err := json.Marshal(request)
 	assert.NoError(t, err)
 
