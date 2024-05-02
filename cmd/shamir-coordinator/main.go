@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	log "github.com/rddl-network/go-utils/logger"
+	"github.com/rddl-network/go-utils/tls"
 	"github.com/rddl-network/shamir-coordinator-service/config"
 	"github.com/rddl-network/shamir-coordinator-service/service"
 	"github.com/rddl-network/shamir-shareholder-service/client"
@@ -20,7 +21,7 @@ func main() {
 	shareholderHosts := strings.Split(cfg.ShareHolderList, ",")
 	sscs := make(map[string]client.IShamirShareholderClient)
 	for _, host := range shareholderHosts {
-		mTLSClient, err := service.Get2wayTLSClient(cfg)
+		mTLSClient, err := tls.Get2WayTLSClient(cfg.CertsPath)
 		if err != nil {
 			stdlog.Fatalf("fatal error setting up mutual TLS shareholder client")
 		}
