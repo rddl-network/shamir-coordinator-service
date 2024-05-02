@@ -77,6 +77,7 @@ The service needs to be configured via the ```./app.toml``` file or environment 
 ```
 asset-id = 'asset-id'
 certs-path = './certs/'
+log-level = 'info'
 rpc-enc-timeout = 20
 rpc-host = 'localhost'
 rpc-password = 'password'
@@ -90,5 +91,4 @@ shamir-shares = 3
 shamir-threshold = 2
 share-holder-list = 'https://localhost:8081,https://localhost:8082,https://localhost:8083'
 test-mode = false
-log-level = debug
 ```
