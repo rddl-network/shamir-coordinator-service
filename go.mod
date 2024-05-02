@@ -9,9 +9,9 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/rddl-network/bc-slip39-go v0.1.3
 	github.com/rddl-network/elements-rpc v1.0.0
-	github.com/rddl-network/go-logger v0.0.2
-	github.com/rddl-network/shamir-shareholder-service v0.1.4
-	github.com/rddl-network/shamir-shareholder-service/client v0.0.2
+	github.com/rddl-network/go-utils v0.0.3
+	github.com/rddl-network/shamir-shareholder-service v0.1.5
+	github.com/rddl-network/shamir-shareholder-service/client v0.0.4
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.9.0
 )
