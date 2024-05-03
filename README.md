@@ -67,6 +67,9 @@ sequenceDiagram
 
 ## Execution
 
+This service relies on TLS certificates.
+See [example](example/README.md) to easily generate certificates for development.
+
 The service can be executed via the following go command without having it previously built:
 ```bash
 go run cmd/shamir-coordinator/main.go
