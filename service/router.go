@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rddl-network/shamir-coordinator-service/types"
 )
 
 const (
@@ -11,7 +12,7 @@ const (
 )
 
 func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
-	var request SendTokensRequest
+	var request types.SendTokensRequest
 	if err := c.BindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
@@ -48,7 +49,7 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	}
 
 	s.logger.Info("msg", "successfully sended tx with id : "+txID+" to "+request.Recipient)
-	var resBody SendTokensResponse
+	var resBody types.SendTokensResponse
 	resBody.TxID = txID
 	c.JSON(http.StatusOK, resBody)
 }
@@ -89,7 +90,7 @@ func (s *ShamirCoordinatorService) CollectShares(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": errCompMsg + err.Error()})
 		return
 	}
-	var resBody MnemonicsResponse
+	var resBody types.MnemonicsResponse
 	resBody.Mnemonics = mnemonics
 	resBody.Seed = seed
 	c.JSON(http.StatusOK, resBody)
