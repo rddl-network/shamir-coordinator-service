@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	elements "github.com/rddl-network/elements-rpc"
+	strutil "github.com/rddl-network/go-utils/str"
 )
 
 func (s *ShamirCoordinatorService) SendAsset(address string, amount string) (txID string, err error) {
@@ -28,7 +29,7 @@ func (s *ShamirCoordinatorService) IsWalletLoaded(rpcURL string, walletname stri
 		return
 	}
 
-	loaded = ContainsString(wallets, walletname)
+	loaded = strutil.ContainsString(wallets, walletname)
 	return
 }
 

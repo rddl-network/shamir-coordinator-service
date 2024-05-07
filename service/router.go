@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	hexutil "github.com/rddl-network/go-utils/hex"
 	"github.com/rddl-network/shamir-coordinator-service/types"
 )
 
@@ -56,7 +57,7 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 
 func (s *ShamirCoordinatorService) DeployShares(c *gin.Context) {
 	secret := c.Param("secret")
-	if !IsValidHex(secret) {
+	if !hexutil.IsValidHex(secret) {
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "the secret has to be send in valid hex string format"})
 		return
 	}
