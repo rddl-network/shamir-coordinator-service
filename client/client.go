@@ -52,6 +52,15 @@ func (scc *ShamirCoordinatorClient) SendTokens(ctx context.Context, recipient st
 	return
 }
 
+func (scc *ShamirCoordinatorClient) ReIssueAsset(ctx context.Context, asset string, amount string) (res types.ReIssueResponse, err error) {
+	requestBody := types.ReIssueRequest{
+		Asset:  asset,
+		Amount: amount,
+	}
+	err = scc.doRequest(ctx, http.MethodPost, scc.baseURL+"/reissue", &requestBody, &res)
+	return
+}
+
 func (scc *ShamirCoordinatorClient) doRequest(ctx context.Context, method, url string, body interface{}, response interface{}) (err error) {
 	var bodyReader io.Reader
 	if body != nil {
