@@ -9,13 +9,13 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/rddl-network/shamir-coordinator-service/service"
+	"github.com/rddl-network/shamir-coordinator-service/types"
 )
 
 type IShamirCoordinatorClient interface {
-	GetMnemonics(ctx context.Context) (res service.MnemonicsResponse, err error)
+	GetMnemonics(ctx context.Context) (res types.MnemonicsResponse, err error)
 	PostMnemonics(ctx context.Context, secret string) (err error)
-	SendTokens(ctx context.Context, recipient string, amount string) (res service.SendTokensResponse, err error)
+	SendTokens(ctx context.Context, recipient string, amount string) (res types.SendTokensResponse, err error)
 }
 
 type ShamirCoordinatorClient struct {
@@ -33,7 +33,7 @@ func NewShamirCoordinatorClient(baseURL string, client *http.Client) *ShamirCoor
 	}
 }
 
-func (scc *ShamirCoordinatorClient) GetMnemonics(ctx context.Context) (res service.MnemonicsResponse, err error) {
+func (scc *ShamirCoordinatorClient) GetMnemonics(ctx context.Context) (res types.MnemonicsResponse, err error) {
 	err = scc.doRequest(ctx, http.MethodGet, scc.baseURL+"/mnemonics", nil, &res)
 	return
 }
@@ -43,8 +43,8 @@ func (scc *ShamirCoordinatorClient) PostMnemonics(ctx context.Context, secret st
 	return
 }
 
-func (scc *ShamirCoordinatorClient) SendTokens(ctx context.Context, recipient string, amount string) (res service.SendTokensResponse, err error) {
-	requestBody := service.SendTokensRequest{
+func (scc *ShamirCoordinatorClient) SendTokens(ctx context.Context, recipient string, amount string) (res types.SendTokensResponse, err error) {
+	requestBody := types.SendTokensRequest{
 		Recipient: recipient,
 		Amount:    amount,
 	}

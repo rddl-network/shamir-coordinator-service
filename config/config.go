@@ -21,6 +21,7 @@ asset-id="{{ .AssetID }}"
 shamir-threshold={{ .ShamirThreshold }}
 shamir-shares={{ .ShamirShares }}
 test-mode={{ .TestMode }}
+log-level="{{ .LogLevel }}"
 `
 
 // Config defines TA's top level configuration
@@ -40,6 +41,7 @@ type Config struct {
 	ShamirThreshold int    `json:"shamir-threshold"  mapstructure:"shamir-threshold"`
 	ShamirShares    int    `json:"shamir-shares"     mapstructure:"shamir-shares"`
 	TestMode        bool   `json:"test-mode"         mapstructure:"test-mode"`
+	LogLevel        string `json:"log-level"         mapstructure:"log-level"`
 }
 
 // global singleton
@@ -66,6 +68,7 @@ func DefaultConfig() *Config {
 		ShamirThreshold: 2,
 		ShamirShares:    3,
 		TestMode:        false,
+		LogLevel:        "info",
 	}
 }
 

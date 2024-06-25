@@ -11,16 +11,17 @@ import (
 	"github.com/golang/mock/gomock"
 	elements "github.com/rddl-network/elements-rpc"
 	elementsmocks "github.com/rddl-network/elements-rpc/utils/mocks"
+	log "github.com/rddl-network/go-utils/logger"
 	"github.com/rddl-network/shamir-coordinator-service/config"
 	"github.com/rddl-network/shamir-coordinator-service/service"
 	"github.com/rddl-network/shamir-coordinator-service/testutil"
+	"github.com/rddl-network/shamir-coordinator-service/types"
 	"github.com/rddl-network/shamir-shareholder-service/client"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTestMode(t *testing.T) {
-	cfg, err := config.LoadConfig("../")
-	assert.NoError(t, err)
+	cfg := config.GetConfig()
 	mycfg := *cfg
 	mycfg.TestMode = true
 
@@ -30,7 +31,8 @@ func TestTestMode(t *testing.T) {
 	sscs["client"] = ssc
 
 	slip39mock := &testutil.Slip39Mock{}
-	s := service.NewShamirCoordinatorService(&mycfg, sscs, slip39mock)
+	logger := log.GetLogger(log.DEBUG)
+	s := service.NewShamirCoordinatorService(&mycfg, sscs, slip39mock, logger)
 
 	routes := s.GetRoutes()
 	assert.Equal(t, 3, len(routes))
@@ -47,7 +49,7 @@ func TestSendPass(t *testing.T) {
 	elements.Client = &elementsmocks.MockClient{}
 	s := testutil.SetupTestService(t)
 
-	request := service.SendTokensRequest{Amount: "123.456", Recipient: "1111111111111111111111111111"}
+	request := types.SendTokensRequest{Amount: "123.456", Recipient: "1111111111111111111111111111"}
 	jsonString, err := json.Marshal(request)
 	assert.NoError(t, err)
 
