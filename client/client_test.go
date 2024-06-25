@@ -48,18 +48,9 @@ func TestPostMnemonics(t *testing.T) {
 func TestSendTokens(t *testing.T) {
 	t.Parallel()
 	expectedRequestBody := `{"recipient":"testRecipient","amount":"123"}`
+	expectedResponseBody := `{"tx-id":"12345"}`
 
-	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		bodyBytes, err := io.ReadAll(r.Body)
-		assert.NoError(t, err)
-		assert.Equal(t, expectedRequestBody, string(bodyBytes))
-		assert.Equal(t, http.MethodPost, r.Method)
-		assert.Equal(t, "/send", r.URL.Path)
-
-		w.WriteHeader(http.StatusOK)
-		_, err = w.Write([]byte(`{"tx-id":"12345"}`))
-		assert.NoError(t, err)
-	}))
+	mockServer := setupMockServer(t, http.MethodPost, "/send", expectedRequestBody, expectedResponseBody)
 	defer mockServer.Close()
 
 	c := client.NewShamirCoordinatorClient(mockServer.URL, mockServer.Client())
@@ -68,4 +59,35 @@ func TestSendTokens(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
 	assert.Equal(t, "12345", res.TxID)
+}
+
+func TestReissueAsset(t *testing.T) {
+	t.Parallel()
+	expectedRequestBody := `{"asset":"06c20c8de513527f1ae6c901f74a05126525ac2d7e89306f4a7fd5ec4e674403","amount":"123"}`
+	expectedResponseBody := `{"tx-id":"12345"}`
+
+	mockServer := setupMockServer(t, http.MethodPost, "/reissue", expectedRequestBody, expectedResponseBody)
+	defer mockServer.Close()
+
+	c := client.NewShamirCoordinatorClient(mockServer.URL, mockServer.Client())
+	res, err := c.ReIssueAsset(context.Background(), "06c20c8de513527f1ae6c901f74a05126525ac2d7e89306f4a7fd5ec4e674403", "123")
+
+	assert.NoError(t, err)
+	assert.NotNil(t, res)
+	assert.Equal(t, "12345", res.TxID)
+}
+
+func setupMockServer(t *testing.T, method string, route string, expectedRequestBody string, expectedResponseBody string) (mockServer *httptest.Server) {
+	mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		bodyBytes, err := io.ReadAll(r.Body)
+		assert.NoError(t, err)
+		assert.Equal(t, expectedRequestBody, string(bodyBytes))
+		assert.Equal(t, method, r.Method)
+		assert.Equal(t, route, r.URL.Path)
+
+		w.WriteHeader(http.StatusOK)
+		_, err = w.Write([]byte(expectedResponseBody))
+		assert.NoError(t, err)
+	}))
+	return
 }

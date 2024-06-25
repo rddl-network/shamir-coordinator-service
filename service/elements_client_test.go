@@ -28,3 +28,14 @@ func TestPrepareWallet(t *testing.T) {
 	err := s.PrepareWallet(passphrase)
 	assert.NoError(t, err)
 }
+
+func TestReissueAsset(t *testing.T) {
+	elements.Client = &elementsmocks.MockClient{}
+	s := testutil.SetupTestService(t)
+
+	asset := "06c20c8de513527f1ae6c901f74a05126525ac2d7e89306f4a7fd5ec4e674403"
+	amount := "900.000"
+	txID, err := s.ReissueAsset(asset, amount)
+	assert.NoError(t, err)
+	assert.Equal(t, "0000000000000000000000000000000000000000000000000000000000000000", txID)
+}

@@ -1,4 +1,4 @@
-package service
+package types
 
 type SendTokensRequest struct {
 	Recipient string `binding:"required" json:"recipient"`
@@ -6,6 +6,15 @@ type SendTokensRequest struct {
 }
 
 type SendTokensResponse struct {
+	TxID string `binding:"required" json:"tx-id"`
+}
+
+type ReIssueRequest struct {
+	Asset  string `binding:"required" json:"asset"`
+	Amount string `binding:"required" json:"amount"`
+}
+
+type ReIssueResponse struct {
 	TxID string `binding:"required" json:"tx-id"`
 }
 

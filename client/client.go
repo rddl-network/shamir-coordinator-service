@@ -7,14 +7,16 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 
-	"github.com/rddl-network/shamir-coordinator-service/service"
+	"github.com/rddl-network/shamir-coordinator-service/types"
 )
 
 type IShamirCoordinatorClient interface {
-	GetMnemonics(ctx context.Context) (res service.MnemonicsResponse, err error)
+	GetMnemonics(ctx context.Context) (res types.MnemonicsResponse, err error)
 	PostMnemonics(ctx context.Context, secret string) (err error)
-	SendTokens(ctx context.Context, recipient string, amount string) (res service.SendTokensResponse, err error)
+	SendTokens(ctx context.Context, recipient string, amount string) (res types.SendTokensResponse, err error)
+	ReissueAsset(ctx context.Context, asset string, amount string) (res types.ReIssueResponse, err error)
 }
 
 type ShamirCoordinatorClient struct {
@@ -32,7 +34,7 @@ func NewShamirCoordinatorClient(baseURL string, client *http.Client) *ShamirCoor
 	}
 }
 
-func (scc *ShamirCoordinatorClient) GetMnemonics(ctx context.Context) (res service.MnemonicsResponse, err error) {
+func (scc *ShamirCoordinatorClient) GetMnemonics(ctx context.Context) (res types.MnemonicsResponse, err error) {
 	err = scc.doRequest(ctx, http.MethodGet, scc.baseURL+"/mnemonics", nil, &res)
 	return
 }
@@ -42,12 +44,21 @@ func (scc *ShamirCoordinatorClient) PostMnemonics(ctx context.Context, secret st
 	return
 }
 
-func (scc *ShamirCoordinatorClient) SendTokens(ctx context.Context, recipient string, amount string) (res service.SendTokensResponse, err error) {
-	requestBody := service.SendTokensRequest{
+func (scc *ShamirCoordinatorClient) SendTokens(ctx context.Context, recipient string, amount string) (res types.SendTokensResponse, err error) {
+	requestBody := types.SendTokensRequest{
 		Recipient: recipient,
 		Amount:    amount,
 	}
 	err = scc.doRequest(ctx, http.MethodPost, scc.baseURL+"/send", &requestBody, &res)
+	return
+}
+
+func (scc *ShamirCoordinatorClient) ReIssueAsset(ctx context.Context, asset string, amount string) (res types.ReIssueResponse, err error) {
+	requestBody := types.ReIssueRequest{
+		Asset:  asset,
+		Amount: amount,
+	}
+	err = scc.doRequest(ctx, http.MethodPost, scc.baseURL+"/reissue", &requestBody, &res)
 	return
 }
 
@@ -77,7 +88,7 @@ func (scc *ShamirCoordinatorClient) doRequest(ctx context.Context, method, url s
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= 400 {
-		return &httpError{StatusCode: resp.StatusCode}
+		return &httpError{StatusCode: resp.StatusCode, Msg: strings.Join(resp.Header["Error"], "\n")}
 	}
 
 	if response != nil {
@@ -89,8 +100,9 @@ func (scc *ShamirCoordinatorClient) doRequest(ctx context.Context, method, url s
 
 type httpError struct {
 	StatusCode int
+	Msg        string
 }
 
 func (e *httpError) Error() string {
-	return http.StatusText(e.StatusCode)
+	return http.StatusText(e.StatusCode) + ": " + e.Msg
 }
