@@ -23,6 +23,18 @@ func (s *ShamirCoordinatorService) SendAsset(address string, amount string) (txI
 	return
 }
 
+func (s *ShamirCoordinatorService) ReissueAsset(asset string, amount string) (txID string, err error) {
+	res, err := elements.ReissueAsset(s.cfg.GetRPCConnectionString(), []string{
+		`"` + asset + `"`,
+		amount,
+	})
+	if err != nil {
+		return
+	}
+	txID = res.TxID
+	return
+}
+
 func (s *ShamirCoordinatorService) IsWalletLoaded(rpcURL string, walletname string) (loaded bool, err error) {
 	wallets, err := elements.ListWallets(rpcURL, []string{})
 	if err != nil {
