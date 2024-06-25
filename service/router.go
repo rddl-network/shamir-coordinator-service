@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	errCompMsg = "error computing the seeds: "
+	errCompMsg   = "error computing the seeds: "
+	errWalletMsg = "error loading the wallet: "
 )
 
 func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
@@ -28,8 +29,8 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	// prepare the wallet, loading and unlocking
 	err = s.PrepareWallet(passphrase)
 	if err != nil {
-		s.logger.Error("error", "error loading the wallet: "+err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error loading the wallet " + err.Error()})
+		s.logger.Error("error", errWalletMsg+err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": errWalletMsg + err.Error()})
 		return
 	}
 	// send asset
@@ -63,8 +64,8 @@ func (s *ShamirCoordinatorService) ReIssue(c *gin.Context) {
 	// prepare the wallet, loading and unlocking
 	err = s.PrepareWallet(passphrase)
 	if err != nil {
-		s.logger.Error("error", "error loading the wallet: "+err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error loading the wallet " + err.Error()})
+		s.logger.Error("error", errWalletMsg+err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": errWalletMsg + err.Error()})
 		return
 	}
 
