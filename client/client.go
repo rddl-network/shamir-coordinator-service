@@ -16,6 +16,7 @@ type IShamirCoordinatorClient interface {
 	GetMnemonics(ctx context.Context) (res types.MnemonicsResponse, err error)
 	PostMnemonics(ctx context.Context, secret string) (err error)
 	SendTokens(ctx context.Context, recipient string, amount string) (res types.SendTokensResponse, err error)
+	ReissueAsset(ctx context.Context, asset string, amount string) (res types.ReIssueResponse, err error)
 }
 
 type ShamirCoordinatorClient struct {
