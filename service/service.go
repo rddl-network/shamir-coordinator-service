@@ -32,6 +32,7 @@ func NewShamirCoordinatorService(cfg *config.Config, sscs map[string]client.ISha
 	gin.SetMode(gin.ReleaseMode)
 	service.Router = gin.New()
 	service.Router.POST("/send", service.SendTokens)
+	service.Router.POST("/reissue", service.ReIssue)
 	service.Router.POST("/mnemonics/:secret", service.DeployShares)
 	if cfg.TestMode {
 		service.Router.GET("/mnemonics", service.CollectShares)

@@ -35,14 +35,14 @@ func TestTestMode(t *testing.T) {
 	s := service.NewShamirCoordinatorService(&mycfg, sscs, slip39mock, logger)
 
 	routes := s.GetRoutes()
-	assert.Equal(t, 3, len(routes))
+	assert.Equal(t, 4, len(routes))
 }
 
 func TestNotTestMode(t *testing.T) {
 	s := testutil.SetupTestService(t)
 
 	routes := s.GetRoutes()
-	assert.Equal(t, 2, len(routes))
+	assert.Equal(t, 3, len(routes))
 }
 
 func TestSendPass(t *testing.T) {
@@ -116,4 +116,32 @@ func TestDeployPass(t *testing.T) {
 	assert.NoError(t, err)
 	s.Router.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
+}
+
+func TestReissuePass(t *testing.T) {
+	elements.Client = &elementsmocks.MockClient{}
+	s := testutil.SetupTestService(t)
+
+	request := types.ReIssueRequest{Amount: "123.456", Asset: "06c20c8de513527f1ae6c901f74a05126525ac2d7e89306f4a7fd5ec4e674403"}
+	jsonString, err := json.Marshal(request)
+	assert.NoError(t, err)
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/reissue", bytes.NewBuffer(jsonString))
+	assert.NoError(t, err)
+	s.Router.ServeHTTP(w, req)
+	assert.Equal(t, "{\"tx-id\":\"0000000000000000000000000000000000000000000000000000000000000000\"}", w.Body.String())
+	assert.Equal(t, 200, w.Code)
+}
+
+func TestReissueFail(t *testing.T) {
+	elements.Client = &elementsmocks.MockClient{}
+	s := testutil.SetupTestService(t)
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/reissue", bytes.NewBufferString("testobject"))
+	assert.NoError(t, err)
+	s.Router.ServeHTTP(w, req)
+	assert.Contains(t, w.Body.String(), "Error")
+	assert.Equal(t, 400, w.Code)
 }

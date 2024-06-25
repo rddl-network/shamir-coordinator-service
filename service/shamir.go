@@ -76,3 +76,17 @@ func (s *ShamirCoordinatorService) RecoverSeed(mnemonics []string) (seed string,
 	seed = hex.EncodeToString(secret)
 	return
 }
+
+func (s *ShamirCoordinatorService) GetPassphrase() (passphrase string, err error) {
+	mnemonics, err := s.CollectMnemonics()
+	if err != nil {
+		s.logger.Error("error", "error collecting the shares: "+err.Error())
+		return "", errors.New("error loading the wallet: " + err.Error())
+	}
+	passphrase, err = s.RecoverSeed(mnemonics[:s.cfg.ShamirThreshold])
+	if err != nil {
+		s.logger.Error("error", errCompMsg+err.Error())
+		return "", errors.New("error sending the transaction: " + err.Error())
+	}
+	return
+}

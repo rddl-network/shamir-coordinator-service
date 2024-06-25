@@ -19,18 +19,9 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 		return
 	}
 	s.logger.Info("msg", "preparing to send "+request.Amount+" tokens to "+request.Recipient)
-	mnemonics, err := s.CollectMnemonics()
-	// This code snippet is handling an error scenario in the `sendTokens` function of the
-	// `ShamirCoordinatorService`.
+	passphrase, err := s.GetPassphrase()
 	if err != nil {
-		s.logger.Error("error", "error collecting the shares: "+err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error collecting the shares"})
-		return
-	}
-	passphrase, err := s.RecoverSeed(mnemonics[:s.cfg.ShamirThreshold])
-	if err != nil {
-		s.logger.Error("error", errCompMsg+err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": errCompMsg + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
 		return
 	}
 
@@ -49,10 +40,44 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 		return
 	}
 
-	s.logger.Info("msg", "successfully sended tx with id : "+txID+" to "+request.Recipient)
+	s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+request.Recipient)
 	var resBody types.SendTokensResponse
 	resBody.TxID = txID
 	c.JSON(http.StatusOK, resBody)
+}
+
+func (s *ShamirCoordinatorService) ReIssue(c *gin.Context) {
+	var request types.ReIssueRequest
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+	s.logger.Info("msg", "preparing to reissue "+request.Amount+" of asset "+request.Asset)
+
+	passphrase, err := s.GetPassphrase()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	// prepare the wallet, loading and unlocking
+	err = s.PrepareWallet(passphrase)
+	if err != nil {
+		s.logger.Error("error", "error loading the wallet: "+err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error loading the wallet " + err.Error()})
+		return
+	}
+
+	// reissue asset
+	txID, err := s.ReissueAsset(request.Asset, request.Amount)
+	if err != nil {
+		s.logger.Error("error", "error reissuing asset: "+err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error reissuing asset"})
+		return
+	}
+
+	s.logger.Info("msg", "successfully reissued asset", "tx-id", txID, "asset", request.Asset, "amount", request.Amount)
+	c.JSON(http.StatusOK, types.ReIssueResponse{TxID: txID})
 }
 
 func (s *ShamirCoordinatorService) DeployShares(c *gin.Context) {
