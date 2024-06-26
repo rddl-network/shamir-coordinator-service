@@ -7,7 +7,10 @@ import (
 	strutil "github.com/rddl-network/go-utils/str"
 )
 
-func (s *ShamirCoordinatorService) SendAsset(address string, amount string) (txID string, err error) {
+func (s *ShamirCoordinatorService) SendAsset(address string, amount string, asset string) (txID string, err error) {
+	if asset == "" {
+		asset = s.cfg.AssetID
+	}
 	txID, err = elements.SendToAddress(s.cfg.GetRPCConnectionString(), []string{
 		`"` + address + `"`,
 		`"` + amount + `"`,
@@ -18,7 +21,7 @@ func (s *ShamirCoordinatorService) SendAsset(address string, amount string) (txI
 		"null",
 		`"unset"`,
 		"false",
-		`"` + s.cfg.AssetID + `"`,
+		`"` + asset + `"`,
 	})
 	return
 }

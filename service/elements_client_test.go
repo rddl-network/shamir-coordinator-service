@@ -15,7 +15,7 @@ func TestSendTo(t *testing.T) {
 
 	address := "tlq1qqvsmfp0w3dmvwtkfteanzk0n7wksu6zx4pywzvak9p6d34yngghw39ynqwcxqrq3muqxffflmprr9exn8ldm79mlkz7dmpy0e"
 	amount := "0.0001"
-	txID, err := s.SendAsset(address, amount)
+	txID, err := s.SendAsset(address, amount, "")
 	assert.NoError(t, err)
 	assert.Equal(t, "0000000000000000000000000000000000000000000000000000000000000000", txID)
 }
