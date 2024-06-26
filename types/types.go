@@ -3,7 +3,7 @@ package types
 type SendTokensRequest struct {
 	Recipient string `binding:"required" json:"recipient"`
 	Amount    string `binding:"required" json:"amount"`
-	Asset     string `json:"asset"`
+	Asset     string `                   json:"asset"`
 }
 
 type SendTokensResponse struct {
