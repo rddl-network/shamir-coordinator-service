@@ -34,7 +34,7 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 		return
 	}
 	// send asset
-	txID, err := s.SendAsset(request.Recipient, request.Amount)
+	txID, err := s.SendAsset(request.Recipient, request.Amount, request.Asset)
 	if err != nil {
 		s.logger.Error("error", "error sending the transaction: "+err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error sending/broadcasting the transaction"})

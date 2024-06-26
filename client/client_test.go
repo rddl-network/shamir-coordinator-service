@@ -47,14 +47,14 @@ func TestPostMnemonics(t *testing.T) {
 
 func TestSendTokens(t *testing.T) {
 	t.Parallel()
-	expectedRequestBody := `{"recipient":"testRecipient","amount":"123"}`
+	expectedRequestBody := `{"recipient":"testRecipient","amount":"123","asset":""}`
 	expectedResponseBody := `{"tx-id":"12345"}`
 
 	mockServer := setupMockServer(t, http.MethodPost, "/send", expectedRequestBody, expectedResponseBody)
 	defer mockServer.Close()
 
 	c := client.NewShamirCoordinatorClient(mockServer.URL, mockServer.Client())
-	res, err := c.SendTokens(context.Background(), "testRecipient", "123")
+	res, err := c.SendTokens(context.Background(), "testRecipient", "123", "")
 
 	assert.NoError(t, err)
 	assert.NotNil(t, res)

@@ -15,8 +15,8 @@ import (
 type IShamirCoordinatorClient interface {
 	GetMnemonics(ctx context.Context) (res types.MnemonicsResponse, err error)
 	PostMnemonics(ctx context.Context, secret string) (err error)
-	SendTokens(ctx context.Context, recipient string, amount string) (res types.SendTokensResponse, err error)
-	ReissueAsset(ctx context.Context, asset string, amount string) (res types.ReIssueResponse, err error)
+	SendTokens(ctx context.Context, recipient string, amount string, asset string) (res types.SendTokensResponse, err error)
+	ReIssueAsset(ctx context.Context, asset string, amount string) (res types.ReIssueResponse, err error)
 }
 
 type ShamirCoordinatorClient struct {
@@ -44,10 +44,11 @@ func (scc *ShamirCoordinatorClient) PostMnemonics(ctx context.Context, secret st
 	return
 }
 
-func (scc *ShamirCoordinatorClient) SendTokens(ctx context.Context, recipient string, amount string) (res types.SendTokensResponse, err error) {
+func (scc *ShamirCoordinatorClient) SendTokens(ctx context.Context, recipient string, amount string, asset string) (res types.SendTokensResponse, err error) {
 	requestBody := types.SendTokensRequest{
 		Recipient: recipient,
 		Amount:    amount,
+		Asset:     asset,
 	}
 	err = scc.doRequest(ctx, http.MethodPost, scc.baseURL+"/send", &requestBody, &res)
 	return
