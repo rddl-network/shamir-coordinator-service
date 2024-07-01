@@ -19,6 +19,18 @@ type ReIssueResponse struct {
 	TxID string `binding:"required" json:"tx-id"`
 }
 
+type IssueMachineNFTRequest struct {
+	Name           string `binding:"required" json:"name"`
+	MachineAddress string `binding:"required" json:"machine-address"`
+	Domain         string `binding:"required" json:"domain"`
+}
+
+type IssueMachineNFTResponse struct {
+	Asset    string `binding:"required" json:"asset"`
+	Contract string `binding:"required" json:"contract"`
+	HexTX    string `binding:"required" json:"hex-tx"`
+}
+
 type MnemonicsResponse struct {
 	Mnemonics []string `binding:"required" json:"mnemonics"`
 	Seed      string   `binding:"required" json:"seed"`
