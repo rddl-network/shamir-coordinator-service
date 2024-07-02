@@ -17,6 +17,7 @@ type IShamirCoordinatorClient interface {
 	PostMnemonics(ctx context.Context, secret string) (err error)
 	SendTokens(ctx context.Context, recipient string, amount string, asset string) (res types.SendTokensResponse, err error)
 	ReIssueAsset(ctx context.Context, asset string, amount string) (res types.ReIssueResponse, err error)
+	IssueMachineNFT(ctx context.Context, name string, machineAddress string, domain string) (res types.IssueMachineNFTResponse, err error)
 }
 
 type ShamirCoordinatorClient struct {
@@ -60,6 +61,16 @@ func (scc *ShamirCoordinatorClient) ReIssueAsset(ctx context.Context, asset stri
 		Amount: amount,
 	}
 	err = scc.doRequest(ctx, http.MethodPost, scc.baseURL+"/reissue", &requestBody, &res)
+	return
+}
+
+func (scc *ShamirCoordinatorClient) IssueMachineNFT(ctx context.Context, name string, machineAddress string, domain string) (res types.IssueMachineNFTResponse, err error) {
+	requestBody := types.IssueMachineNFTRequest{
+		Name:           name,
+		MachineAddress: machineAddress,
+		Domain:         domain,
+	}
+	err = scc.doRequest(ctx, http.MethodPost, scc.baseURL+"/issue-machine-nft", &requestBody, &res)
 	return
 }
 

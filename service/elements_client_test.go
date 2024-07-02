@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"sync"
 	"testing"
 
 	elements "github.com/rddl-network/elements-rpc"
@@ -38,4 +39,22 @@ func TestReissueAsset(t *testing.T) {
 	txID, err := s.ReissueAsset(asset, amount)
 	assert.NoError(t, err)
 	assert.Equal(t, "0000000000000000000000000000000000000000000000000000000000000000", txID)
+}
+
+func TestIssueNFTAsset(t *testing.T) {
+	elements.Client = &elementsmocks.MockClient{}
+	s := testutil.SetupTestService(t)
+
+	var wg sync.WaitGroup
+
+	for i := 0; i < 1; i++ {
+		wg.Add(1)
+		go func() {
+			_, _, _, err := s.IssueNFTAsset("machine.Name", "machine.Address", "testnet-assets.rddl.io")
+			assert.NoError(t, err)
+
+			wg.Done()
+		}()
+	}
+	wg.Wait()
 }

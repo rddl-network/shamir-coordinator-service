@@ -17,6 +17,14 @@ To ensure secure communication it utilizes mutual TLS. It offers two routes:
 
   Header: Content-Type: application/json
 
+- /issue-machine-nft
+
+  Method POST
+
+  Header: Content-Type: application/json
+
+  Body: { "name": "name of asset", "machine-address": "address of machine", "domain": "Domain of machine" }
+
 ## Prerequisits
 The creation and the recovery of the shares is done with the help of `https://github.com/rddl-network/bc-slip39-go`.
 Therefore, the C libraries of BlockchainCommons need to be built.
