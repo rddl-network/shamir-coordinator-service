@@ -35,14 +35,14 @@ func TestTestMode(t *testing.T) {
 	s := service.NewShamirCoordinatorService(&mycfg, sscs, slip39mock, logger)
 
 	routes := s.GetRoutes()
-	assert.Equal(t, 4, len(routes))
+	assert.Equal(t, 5, len(routes))
 }
 
 func TestNotTestMode(t *testing.T) {
 	s := testutil.SetupTestService(t)
 
 	routes := s.GetRoutes()
-	assert.Equal(t, 3, len(routes))
+	assert.Equal(t, 4, len(routes))
 }
 
 func TestSendPass(t *testing.T) {
@@ -140,6 +140,34 @@ func TestReissueFail(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/reissue", bytes.NewBufferString("testobject"))
+	assert.NoError(t, err)
+	s.Router.ServeHTTP(w, req)
+	assert.Contains(t, w.Body.String(), "Error")
+	assert.Equal(t, 400, w.Code)
+}
+
+func TestIssueMachineNFTPass(t *testing.T) {
+	elements.Client = &elementsmocks.MockClient{}
+	s := testutil.SetupTestService(t)
+
+	request := types.IssueMachineNFTRequest{Name: "Machine", MachineAddress: "someAddr", Domain: "testnet-assets.rddl.io"}
+	jsonString, err := json.Marshal(request)
+	assert.NoError(t, err)
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/issue-machine-nft", bytes.NewBuffer(jsonString))
+	assert.NoError(t, err)
+	s.Router.ServeHTTP(w, req)
+	assert.Equal(t, "{\"asset\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"contract\":\"{\\\"entity\\\":{\\\"domain\\\":\\\"testnet-assets.rddl.io\\\"},\\\"issuer_pubkey\\\":\\\"020000000000000000000000000000000000000000000000000000000000000000\\\",\\\"machine_addr\\\":\\\"someAddr\\\",\\\"name\\\":\\\"Machine\\\",\\\"precision\\\":0,\\\"version\\\":0}\",\"hex-tx\":\"0000000000000000000000000000000000000000000000000000000000000000\"}", w.Body.String())
+	assert.Equal(t, 200, w.Code)
+}
+
+func TestIssueMachineNFTFail(t *testing.T) {
+	elements.Client = &elementsmocks.MockClient{}
+	s := testutil.SetupTestService(t)
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/issue-machine-nft", bytes.NewBufferString("testobject"))
 	assert.NoError(t, err)
 	s.Router.ServeHTTP(w, req)
 	assert.Contains(t, w.Body.String(), "Error")

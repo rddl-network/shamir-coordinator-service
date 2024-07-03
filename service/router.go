@@ -81,6 +81,41 @@ func (s *ShamirCoordinatorService) ReIssue(c *gin.Context) {
 	c.JSON(http.StatusOK, types.ReIssueResponse{TxID: txID})
 }
 
+func (s *ShamirCoordinatorService) IssueMachineNFT(c *gin.Context) {
+	var request types.IssueMachineNFTRequest
+	if err := c.BindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
+		return
+	}
+
+	passphrase, err := s.GetPassphrase()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	// prepare the wallet, loading and unlocking
+	err = s.PrepareWallet(passphrase)
+	if err != nil {
+		s.logger.Error("error", errWalletMsg+err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": errWalletMsg + err.Error()})
+		return
+	}
+
+	asset, contract, hexTx, err := s.IssueNFTAsset(request.Name, request.MachineAddress, request.Domain)
+	if err != nil {
+		s.logger.Error("error", "error issuing machine nft", "name", request.Name, "machineAddress", request.MachineAddress, "domain", request.Domain)
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, types.IssueMachineNFTResponse{
+		Asset:    asset,
+		Contract: contract,
+		HexTX:    hexTx,
+	})
+}
+
 func (s *ShamirCoordinatorService) DeployShares(c *gin.Context) {
 	secret := c.Param("secret")
 	if !hexutil.IsValidHex(secret) {

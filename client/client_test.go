@@ -77,6 +77,24 @@ func TestReissueAsset(t *testing.T) {
 	assert.Equal(t, "12345", res.TxID)
 }
 
+func TestIssueMachineNFT(t *testing.T) {
+	t.Parallel()
+	expectedRequestBody := `{"name":"Machine","machine-address":"someAddr","domain":"testnet-assets.rddl.io"}`
+	expectedResponseBody := `{"asset":"12345","contract":"someContract","hex-tx":"06c20c8de513527f1ae6c901f74a05126525ac2d7e89306f4a7fd5ec4e674403"}`
+
+	mockServer := setupMockServer(t, http.MethodPost, "/issue-machine-nft", expectedRequestBody, expectedResponseBody)
+	defer mockServer.Close()
+
+	c := client.NewShamirCoordinatorClient(mockServer.URL, mockServer.Client())
+	res, err := c.IssueMachineNFT(context.Background(), "Machine", "someAddr", "testnet-assets.rddl.io")
+
+	assert.NoError(t, err)
+	assert.NotNil(t, res)
+	assert.Equal(t, "12345", res.Asset)
+	assert.Equal(t, "someContract", res.Contract)
+	assert.Equal(t, "06c20c8de513527f1ae6c901f74a05126525ac2d7e89306f4a7fd5ec4e674403", res.HexTX)
+}
+
 func setupMockServer(t *testing.T, method string, route string, expectedRequestBody string, expectedResponseBody string) (mockServer *httptest.Server) {
 	mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		bodyBytes, err := io.ReadAll(r.Body)
