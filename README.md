@@ -1,7 +1,7 @@
 # shamir-coordinator-service
 This service serves the purpose of creating and distributing shamir secret shares to a set of distributed shareholder services, and collecting them again in order to sign a transaction.
 The transaction will be issued on Liquid. The elemnts RPC can be configured with `app.toml` file.
-To ensure secure communication it utilizes mutual TLS. It offers two routes:
+To ensure secure communication it utilizes mutual TLS. It offers three routes:
 
 - URL: /send
 
@@ -10,6 +10,12 @@ To ensure secure communication it utilizes mutual TLS. It offers two routes:
   Header: Content-Type: application/json
   
   Body: { "recipient": "recipient address","amount": "amount" }
+
+- URL: /reissue
+
+  Method: POST
+
+  Body: { "asset": "asset id", "amount": "amount" }
 
 - /mnemonics/:secret
 
@@ -56,7 +62,7 @@ sequenceDiagram
     Coordinator->>Shareholder3: distribute share3
 
 
-    Operator->>Coordinator: /send, with recipient and amount of tokens
+    Operator->>Coordinator: /send, with recipient and amount of tokens or /reissue with asset and amount of tokens
     Coordinator->>Shareholder1: collect shares
     Shareholder1->>Shareholder1: verify if the request is legit
     Shareholder1->>Coordinator: return share, if legit
