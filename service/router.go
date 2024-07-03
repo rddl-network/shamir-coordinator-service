@@ -88,6 +88,8 @@ func (s *ShamirCoordinatorService) IssueMachineNFT(c *gin.Context) {
 		return
 	}
 
+	s.logger.Info("msg", "preparing to issue machine nft", "name", request.Name, "machineAddress", request.MachineAddress, "domain", request.Domain)
+
 	passphrase, err := s.GetPassphrase()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
@@ -104,10 +106,12 @@ func (s *ShamirCoordinatorService) IssueMachineNFT(c *gin.Context) {
 
 	asset, contract, hexTx, err := s.IssueNFTAsset(request.Name, request.MachineAddress, request.Domain)
 	if err != nil {
-		s.logger.Error("error", "error issuing machine nft", "name", request.Name, "machineAddress", request.MachineAddress, "domain", request.Domain)
+		s.logger.Error("error", "error issuing machine nft: "+err.Error(), "name", request.Name, "machineAddress", request.MachineAddress, "domain", request.Domain)
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
 		return
 	}
+
+	s.logger.Info("msg", "successfully issued machine nft", "asset_id", asset, "contract", contract, "hex_tx", hexTx)
 
 	c.JSON(http.StatusOK, types.IssueMachineNFTResponse{
 		Asset:    asset,
