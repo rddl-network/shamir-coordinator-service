@@ -5,10 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"sync"
 
 	elements "github.com/rddl-network/elements-rpc"
 	strutil "github.com/rddl-network/go-utils/str"
 	"github.com/rddl-network/shamir-coordinator-service/types"
+)
+
+var (
+	// this mutex has to protect all signing and crafting of transactions and their inputs
+	// so that UTXOs are not spend twice by accident
+	elementsSyncAccess sync.Mutex
 )
 
 func (s *ShamirCoordinatorService) SendAsset(address string, amount string, asset string) (txID string, err error) {
@@ -88,6 +95,8 @@ func (s *ShamirCoordinatorService) IssueNFTAsset(name string, machineAddress str
 		return
 	}
 
+	elementsSyncAccess.Lock()
+	defer elementsSyncAccess.Unlock()
 	hex, err := elements.CreateRawTransaction(url, []string{`[]`, `[{"data":"00"}]`})
 	if err != nil {
 		return
