@@ -10,6 +10,7 @@ import (
 	log "github.com/rddl-network/go-utils/logger"
 	"github.com/rddl-network/go-utils/tls"
 	"github.com/rddl-network/shamir-coordinator-service/config"
+	"github.com/rddl-network/shamir-coordinator-service/service/backend"
 	"github.com/rddl-network/shamir-shareholder-service/client"
 )
 
@@ -19,14 +20,16 @@ type ShamirCoordinatorService struct {
 	sscs            map[string]client.IShamirShareholderClient
 	slip39Interface ISlip39
 	logger          log.AppLogger
+	db              *backend.DBConnector
 }
 
-func NewShamirCoordinatorService(cfg *config.Config, sscs map[string]client.IShamirShareholderClient, slip39Interface ISlip39, logger log.AppLogger) *ShamirCoordinatorService {
+func NewShamirCoordinatorService(cfg *config.Config, sscs map[string]client.IShamirShareholderClient, slip39Interface ISlip39, logger log.AppLogger, db *backend.DBConnector) *ShamirCoordinatorService {
 	service := &ShamirCoordinatorService{
 		cfg:             cfg,
 		sscs:            sscs,
 		slip39Interface: slip39Interface,
 		logger:          logger,
+		db:              db,
 	}
 
 	gin.SetMode(gin.ReleaseMode)
