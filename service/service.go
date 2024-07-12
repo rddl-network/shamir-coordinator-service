@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/rddl-network/go-utils/logger"
@@ -65,6 +66,67 @@ func (s *ShamirCoordinatorService) Run() (err error) {
 		return err
 	}
 	defer ln.Close()
-
+	go s.rerunFailedRequests(cfg.WaitPeriod)
 	return server.ServeTLS(ln, cfg.CertsPath+"server.crt", cfg.CertsPath+"server.key")
+}
+
+func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
+	ticker := time.NewTicker(time.Duration(waitPeriod) * time.Second)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		passphrase, err := s.GetPassphrase()
+		if err != nil {
+			s.logger.Error("error", errWalletMsg+err.Error())
+			continue
+		}
+
+		// prepare the wallet, loading and unlocking
+		err = s.PrepareWallet(passphrase)
+		if err != nil {
+			s.logger.Error("error", errWalletMsg+err.Error())
+			continue
+		}
+
+		sendTokensRequests, err := s.db.GetAllSendTokensRequests()
+		if err != nil {
+			s.logger.Error("msg", "error while reading sendTokensRequests: "+err.Error())
+		}
+		for _, req := range sendTokensRequests {
+			txID, err := s.SendAsset(req.Recipient, req.Amount, req.Asset)
+			if err != nil {
+				s.logger.Error("error", "error sending the transaction: "+err.Error())
+				continue
+			}
+			s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+req.Recipient)
+		}
+
+		reIssueRequests, err := s.db.GetAllReissueRequests()
+		if err != nil {
+			s.logger.Error("msg", "error while reading reIssueRequests: "+err.Error())
+		}
+		for _, req := range reIssueRequests {
+			txID, err := s.ReissueAsset(req.Asset, req.Amount)
+			if err != nil {
+				s.logger.Error("error", "error reissuing asset: "+err.Error())
+				continue
+			}
+			s.logger.Info("msg", "successfully reissued asset", "tx-id", txID, "asset", req.Asset, "amount", req.Amount)
+		}
+
+		issueNFTAssetRequests, err := s.db.GetAllIssueMachineNFTRequests()
+		if err != nil {
+			s.logger.Error("msg", "error while reading issueNFTAssetRequests: "+err.Error())
+		}
+		for _, req := range issueNFTAssetRequests {
+			asset, contract, hexTx, err := s.IssueNFTAsset(req.Name, req.MachineAddress, req.Domain)
+			if err != nil {
+				s.logger.Error("error", "error issuing machine nft: "+err.Error(), "name", req.Name, "machineAddress", req.MachineAddress, "domain", req.Domain)
+				continue
+			}
+			s.logger.Info("msg", "successfully issued machine nft", "asset_id", asset, "contract", contract, "hex_tx", hexTx)
+		}
+
+		// lock wallet
+	}
 }
