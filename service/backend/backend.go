@@ -71,6 +71,33 @@ func (dc *DBConnector) CreateRequest(requestType string, id int, request interfa
 	return nil
 }
 
+func (dc *DBConnector) CreateSendTokensRequest(request types.SendTokensRequest) (err error) {
+	id, err := dc.IncrementCount(SendTokensRequestPrefix)
+	if err != nil {
+		return
+	}
+	request.ID = id
+	return dc.CreateRequest(SendTokensRequestPrefix, id, request)
+}
+
+func (dc *DBConnector) CreateReIssueRequest(request types.ReIssueRequest) (err error) {
+	id, err := dc.IncrementCount(ReissueRequestPrefix)
+	if err != nil {
+		return
+	}
+	request.ID = id
+	return dc.CreateRequest(ReissueRequestPrefix, id, request)
+}
+
+func (dc *DBConnector) CreateIssueMachineNFTRequest(request types.IssueMachineNFTRequest) (err error) {
+	id, err := dc.IncrementCount(IssueMachineNFTPrefix)
+	if err != nil {
+		return
+	}
+	request.ID = id
+	return dc.CreateRequest(IssueMachineNFTPrefix, id, request)
+}
+
 func (dc *DBConnector) GetRequest(requestType string, id int, request interface{}) (err error) {
 	key := requestKey(requestType, id)
 	dbMutex.Lock()

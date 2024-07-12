@@ -38,6 +38,9 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	if err != nil {
 		s.logger.Error("error", "error sending the transaction: "+err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error sending/broadcasting the transaction"})
+		if e := s.db.CreateSendTokensRequest(request); e != nil {
+			s.logger.Error("error", "error storing transaction request: ", e.Error())
+		}
 		return
 	}
 
@@ -74,6 +77,9 @@ func (s *ShamirCoordinatorService) ReIssue(c *gin.Context) {
 	if err != nil {
 		s.logger.Error("error", "error reissuing asset: "+err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error reissuing asset"})
+		if e := s.db.CreateReIssueRequest(request); e != nil {
+			s.logger.Error("error", "error storing reissue request: ", e.Error())
+		}
 		return
 	}
 
@@ -108,6 +114,9 @@ func (s *ShamirCoordinatorService) IssueMachineNFT(c *gin.Context) {
 	if err != nil {
 		s.logger.Error("error", "error issuing machine nft: "+err.Error(), "name", request.Name, "machineAddress", request.MachineAddress, "domain", request.Domain)
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		if e := s.db.CreateIssueMachineNFTRequest(request); e != nil {
+			s.logger.Error("error", "error storing issue nft request: ", e.Error())
+		}
 		return
 	}
 
