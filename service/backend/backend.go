@@ -28,7 +28,7 @@ func InitDB(cfg *config.Config) (db *leveldb.DB, err error) {
 	return leveldb.OpenFile(cfg.DBPath, nil)
 }
 
-func (dc *DBConnector) incrementCount(requestType string) (count int, err error) {
+func (dc *DBConnector) IncrementCount(requestType string) (count int, err error) {
 	countBytes, err := dc.db.Get(countKey(requestType), nil)
 	if err != nil && !errors.Is(err, leveldb.ErrNotFound) {
 		return 0, err
@@ -54,26 +54,21 @@ func (dc *DBConnector) incrementCount(requestType string) (count int, err error)
 	return count, nil
 }
 
-func (dc *DBConnector) CreateRequest(requestType string, request interface{}) (id int, err error) {
-	id, err = dc.incrementCount(requestType)
-	if err != nil {
-		return
-	}
-
+func (dc *DBConnector) CreateRequest(requestType string, id int, request interface{}) (err error) {
 	key := requestKey(requestType, id)
 	val, err := json.Marshal(request)
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	dbMutex.Lock()
 	defer dbMutex.Unlock()
 
 	if err := dc.db.Put(key, val, nil); err != nil {
-		return 0, err
+		return err
 	}
 
-	return id, nil
+	return nil
 }
 
 func (dc *DBConnector) GetRequest(requestType string, id int, request interface{}) (err error) {

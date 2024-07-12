@@ -99,6 +99,7 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 				continue
 			}
 			s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+req.Recipient)
+			s.db.DeleteRequest(backend.SendTokensRequestPrefix, req.ID)
 		}
 
 		reIssueRequests, err := s.db.GetAllReissueRequests()
@@ -112,6 +113,7 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 				continue
 			}
 			s.logger.Info("msg", "successfully reissued asset", "tx-id", txID, "asset", req.Asset, "amount", req.Amount)
+			s.db.DeleteRequest(backend.ReissueRequestPrefix, req.ID)
 		}
 
 		issueNFTAssetRequests, err := s.db.GetAllIssueMachineNFTRequests()
@@ -125,6 +127,7 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 				continue
 			}
 			s.logger.Info("msg", "successfully issued machine nft", "asset_id", asset, "contract", contract, "hex_tx", hexTx)
+			s.db.DeleteRequest(backend.IssueMachineNFTPrefix, req.ID)
 		}
 
 		// lock wallet

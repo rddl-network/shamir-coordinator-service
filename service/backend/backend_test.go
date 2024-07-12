@@ -15,26 +15,30 @@ func createNRequests(db *backend.DBConnector, requestType string, n int) []inter
 	items := make([]interface{}, n)
 	for i := range items {
 		iStr := strconv.Itoa(i)
+		id, _ := db.IncrementCount(requestType)
 		switch requestType {
 		case backend.SendTokensRequestPrefix:
 			items[i] = types.SendTokensRequest{
 				Recipient: "recipient" + iStr,
 				Amount:    "1000token",
 				Asset:     "asset" + iStr,
+				ID:        id,
 			}
 		case backend.ReissueRequestPrefix:
 			items[i] = types.ReIssueRequest{
 				Asset:  "asset" + iStr,
 				Amount: "1000token",
+				ID:     id,
 			}
 		case backend.IssueMachineNFTPrefix:
 			items[i] = types.IssueMachineNFTRequest{
 				Name:           "machine" + iStr,
 				MachineAddress: "machAddr" + iStr,
 				Domain:         "domain" + iStr,
+				ID:             id,
 			}
 		}
-		db.CreateRequest(requestType, items[i])
+		db.CreateRequest(requestType, id, items[i])
 	}
 	return items
 }
@@ -111,9 +115,9 @@ func TestDeleteTask(t *testing.T) {
 	createNRequests(db, backend.ReissueRequestPrefix, 500)
 	createNRequests(db, backend.SendTokensRequestPrefix, 500)
 
-	db.DeleteRequest(backend.IssueMachineNFTPrefix, 47+1)
-	db.DeleteRequest(backend.ReissueRequestPrefix, 68+1)
-	db.DeleteRequest(backend.ReissueRequestPrefix, 155+1)
+	db.DeleteRequest(backend.IssueMachineNFTPrefix, 48)
+	db.DeleteRequest(backend.ReissueRequestPrefix, 68)
+	db.DeleteRequest(backend.ReissueRequestPrefix, 155)
 
 	reqs, err := db.GetAllIssueMachineNFTRequests()
 	assert.NoError(t, err)
