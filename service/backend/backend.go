@@ -7,13 +7,10 @@ import (
 	"sync"
 
 	"github.com/rddl-network/shamir-coordinator-service/config"
+	"github.com/rddl-network/shamir-coordinator-service/types"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
 )
-
-type Task struct {
-	ID int `binding:"gte=0" json:"id"`
-}
 
 type DBConnector struct {
 	db *leveldb.DB
@@ -31,8 +28,8 @@ func InitDB(cfg *config.Config) (db *leveldb.DB, err error) {
 	return leveldb.OpenFile(cfg.DBPath, nil)
 }
 
-func (dc *DBConnector) incrementCount() (count int, err error) {
-	countBytes, err := dc.db.Get(keyPrefix(countKey), nil)
+func (dc *DBConnector) incrementCount(requestType string) (count int, err error) {
+	countBytes, err := dc.db.Get(countKey(requestType), nil)
 	if err != nil && !errors.Is(err, leveldb.ErrNotFound) {
 		return 0, err
 	}
@@ -49,7 +46,7 @@ func (dc *DBConnector) incrementCount() (count int, err error) {
 
 	dbMutex.Lock()
 	defer dbMutex.Unlock()
-	err = dc.db.Put(keyPrefix(countKey), []byte(strconv.Itoa(count)), nil)
+	err = dc.db.Put(countKey(requestType), []byte(strconv.Itoa(count)), nil)
 	if err != nil {
 		return 0, err
 	}
@@ -57,16 +54,14 @@ func (dc *DBConnector) incrementCount() (count int, err error) {
 	return count, nil
 }
 
-func (dc *DBConnector) CreateTask(task Task) (id int, err error) {
-	id, err = dc.incrementCount()
+func (dc *DBConnector) CreateRequest(requestType string, request interface{}) (id int, err error) {
+	id, err = dc.incrementCount(requestType)
 	if err != nil {
 		return
 	}
 
-	task.ID = id
-
-	key := taskKey(id)
-	val, err := json.Marshal(task)
+	key := requestKey(requestType, id)
+	val, err := json.Marshal(request)
 	if err != nil {
 		return 0, err
 	}
@@ -81,36 +76,66 @@ func (dc *DBConnector) CreateTask(task Task) (id int, err error) {
 	return id, nil
 }
 
-func (dc *DBConnector) GetTask(id int) (task Task, err error) {
-	key := taskKey(id)
+func (dc *DBConnector) GetRequest(requestType string, id int, request interface{}) (err error) {
+	key := requestKey(requestType, id)
 	dbMutex.Lock()
 	defer dbMutex.Unlock()
 	valBytes, err := dc.db.Get(key, nil)
 	if err != nil {
 		return
 	}
-	err = json.Unmarshal(valBytes, &task)
+	err = json.Unmarshal(valBytes, &request)
 	return
 }
 
-func (dc *DBConnector) DeleteTask(id int) (err error) {
-	key := taskKey(id)
+func (dc *DBConnector) DeleteRequest(requestType string, id int) (err error) {
+	key := requestKey(requestType, id)
 	dbMutex.Lock()
 	defer dbMutex.Unlock()
 	return dc.db.Delete(key, nil)
 }
 
-func (dc *DBConnector) GetAllTasks() (tasks []Task, err error) {
-	iter := dc.db.NewIterator(util.BytesPrefix([]byte(taskKeyPrefix)), nil)
+func (dc *DBConnector) GetAllIssueMachineNFTRequests() (requests []types.IssueMachineNFTRequest, err error) {
+	iter := dc.db.NewIterator(util.BytesPrefix([]byte(IssueMachineNFTPrefix)), nil)
 	defer iter.Release()
 	for iter.Next() {
-		var task Task
-		taskBytes := iter.Value()
-		err = json.Unmarshal(taskBytes, &task)
+		var request types.IssueMachineNFTRequest
+		requestBytes := iter.Value()
+		err = json.Unmarshal(requestBytes, &request)
 		if err != nil {
 			return
 		}
-		tasks = append(tasks, task)
+		requests = append(requests, request)
+	}
+	return
+}
+
+func (dc *DBConnector) GetAllSendTokensRequests() (requests []types.SendTokensRequest, err error) {
+	iter := dc.db.NewIterator(util.BytesPrefix([]byte(SendTokensRequestPrefix)), nil)
+	defer iter.Release()
+	for iter.Next() {
+		var request types.SendTokensRequest
+		requestBytes := iter.Value()
+		err = json.Unmarshal(requestBytes, &request)
+		if err != nil {
+			return
+		}
+		requests = append(requests, request)
+	}
+	return
+}
+
+func (dc *DBConnector) GetAllReissueRequests() (requests []types.ReIssueRequest, err error) {
+	iter := dc.db.NewIterator(util.BytesPrefix([]byte(SendTokensRequestPrefix)), nil)
+	defer iter.Release()
+	for iter.Next() {
+		var request types.ReIssueRequest
+		requestBytes := iter.Value()
+		err = json.Unmarshal(requestBytes, &request)
+		if err != nil {
+			return
+		}
+		requests = append(requests, request)
 	}
 	return
 }

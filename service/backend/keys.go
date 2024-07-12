@@ -3,22 +3,23 @@ package backend
 import "encoding/binary"
 
 const (
-	countKey      = "Count"
-	taskKeyPrefix = "Task/"
+	countKeyPrefix          = "Count/"
+	requestKeyPrefix        = "Request/"
+	ReissueRequestPrefix    = "Reissue/"
+	SendTokensRequestPrefix = "SendTokens/"
+	IssueMachineNFTPrefix   = "IssueMachineNFTPrefix/"
 )
 
-func keyPrefix(p string) []byte {
-	return []byte(p)
+func countKey(p string) []byte {
+	return []byte(countKeyPrefix + p)
 }
 
-func taskKey(id int) []byte {
+func requestKey(requestType string, id int) []byte {
 	var key []byte
 
 	buf := make([]byte, 8)
 	binary.BigEndian.PutUint64(buf, uint64(id))
-
-	prefixBytes := []byte(taskKeyPrefix)
-	key = append(key, prefixBytes...)
+	key = append(key, []byte(requestType)...)
 	key = append(key, buf...)
 
 	return key
