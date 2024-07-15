@@ -67,6 +67,7 @@ func (s *ShamirCoordinatorService) Run() (err error) {
 	}
 	defer ln.Close()
 	go s.rerunFailedRequests(cfg.WaitPeriod)
+	s.logger.Info("msg", "started server", "host", cfg.ServiceBind, "port", cfg.ServicePort)
 	return server.ServeTLS(ln, cfg.CertsPath+"server.crt", cfg.CertsPath+"server.key")
 }
 

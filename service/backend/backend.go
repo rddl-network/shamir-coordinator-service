@@ -148,7 +148,7 @@ func (dc *DBConnector) GetAllSendTokensRequests() (requests []types.SendTokensRe
 }
 
 func (dc *DBConnector) GetAllReissueRequests() (requests []types.ReIssueRequest, err error) {
-	iter := dc.db.NewIterator(util.BytesPrefix([]byte(SendTokensRequestPrefix)), nil)
+	iter := dc.db.NewIterator(util.BytesPrefix([]byte(ReissueRequestPrefix)), nil)
 	defer iter.Release()
 	for iter.Next() {
 		var request types.ReIssueRequest
