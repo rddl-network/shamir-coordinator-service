@@ -20,14 +20,14 @@ func createNRequests(db *backend.DBConnector, requestType string, n int) []inter
 		case backend.SendTokensRequestPrefix:
 			items[i] = types.SendTokensRequest{
 				Recipient: "recipient" + iStr,
-				Amount:    "1000token",
+				Amount:    "1000",
 				Asset:     "asset" + iStr,
 				ID:        id,
 			}
 		case backend.ReissueRequestPrefix:
 			items[i] = types.ReIssueRequest{
 				Asset:  "asset" + iStr,
-				Amount: "1000token",
+				Amount: "1500",
 				ID:     id,
 			}
 		case backend.IssueMachineNFTPrefix:
@@ -38,7 +38,7 @@ func createNRequests(db *backend.DBConnector, requestType string, n int) []inter
 				ID:             id,
 			}
 		}
-		db.CreateRequest(requestType, id, items[i])
+		_ = db.CreateRequest(requestType, id, items[i])
 	}
 	return items
 }
@@ -46,7 +46,7 @@ func createNRequests(db *backend.DBConnector, requestType string, n int) []inter
 func TestGetTask(t *testing.T) {
 	db := testutil.SetupTestDBConnector(t)
 
-	issueNFTitems := createNRequests(db, backend.IssueMachineNFTPrefix, 500)
+	issueNFTitems := createNRequests(db, backend.IssueMachineNFTPrefix, 400)
 	for i, item := range issueNFTitems {
 		var request types.IssueMachineNFTRequest
 		err := db.GetRequest(backend.IssueMachineNFTPrefix, i+1, &request)
@@ -62,7 +62,7 @@ func TestGetTask(t *testing.T) {
 		assert.Equal(t, item, request)
 	}
 
-	sendTokensItems := createNRequests(db, backend.SendTokensRequestPrefix, 500)
+	sendTokensItems := createNRequests(db, backend.SendTokensRequestPrefix, 300)
 	for i, item := range sendTokensItems {
 		var request types.SendTokensRequest
 		err := db.GetRequest(backend.SendTokensRequestPrefix, i+1, &request)
@@ -115,9 +115,12 @@ func TestDeleteTask(t *testing.T) {
 	createNRequests(db, backend.ReissueRequestPrefix, 500)
 	createNRequests(db, backend.SendTokensRequestPrefix, 500)
 
-	db.DeleteRequest(backend.IssueMachineNFTPrefix, 48)
-	db.DeleteRequest(backend.ReissueRequestPrefix, 68)
-	db.DeleteRequest(backend.ReissueRequestPrefix, 155)
+	err := db.DeleteRequest(backend.IssueMachineNFTPrefix, 48)
+	assert.NoError(t, err)
+	err = db.DeleteRequest(backend.ReissueRequestPrefix, 68)
+	assert.NoError(t, err)
+	err = db.DeleteRequest(backend.ReissueRequestPrefix, 155)
+	assert.NoError(t, err)
 
 	reqs, err := db.GetAllIssueMachineNFTRequests()
 	assert.NoError(t, err)

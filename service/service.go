@@ -12,6 +12,7 @@ import (
 	"github.com/rddl-network/go-utils/tls"
 	"github.com/rddl-network/shamir-coordinator-service/config"
 	"github.com/rddl-network/shamir-coordinator-service/service/backend"
+	"github.com/rddl-network/shamir-coordinator-service/types"
 	"github.com/rddl-network/shamir-shareholder-service/client"
 )
 
@@ -94,13 +95,7 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 			s.logger.Error("msg", "error while reading sendTokensRequests: "+err.Error())
 		}
 		for _, req := range sendTokensRequests {
-			txID, err := s.SendAsset(req.Recipient, req.Amount, req.Asset)
-			if err != nil {
-				s.logger.Error("error", "error sending the transaction: "+err.Error())
-				continue
-			}
-			s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+req.Recipient)
-			s.db.DeleteRequest(backend.SendTokensRequestPrefix, req.ID)
+			s.handleSendTokensRequest(req)
 		}
 
 		reIssueRequests, err := s.db.GetAllReissueRequests()
@@ -108,13 +103,7 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 			s.logger.Error("msg", "error while reading reIssueRequests: "+err.Error())
 		}
 		for _, req := range reIssueRequests {
-			txID, err := s.ReissueAsset(req.Asset, req.Amount)
-			if err != nil {
-				s.logger.Error("error", "error reissuing asset: "+err.Error())
-				continue
-			}
-			s.logger.Info("msg", "successfully reissued asset", "tx-id", txID, "asset", req.Asset, "amount", req.Amount)
-			s.db.DeleteRequest(backend.ReissueRequestPrefix, req.ID)
+			s.handleReIssueRequest(req)
 		}
 
 		issueNFTAssetRequests, err := s.db.GetAllIssueMachineNFTRequests()
@@ -122,15 +111,45 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 			s.logger.Error("msg", "error while reading issueNFTAssetRequests: "+err.Error())
 		}
 		for _, req := range issueNFTAssetRequests {
-			asset, contract, hexTx, err := s.IssueNFTAsset(req.Name, req.MachineAddress, req.Domain)
-			if err != nil {
-				s.logger.Error("error", "error issuing machine nft: "+err.Error(), "name", req.Name, "machineAddress", req.MachineAddress, "domain", req.Domain)
-				continue
-			}
-			s.logger.Info("msg", "successfully issued machine nft", "asset_id", asset, "contract", contract, "hex_tx", hexTx)
-			s.db.DeleteRequest(backend.IssueMachineNFTPrefix, req.ID)
+			s.handleIssueMachineNFTRequest(req)
 		}
 
 		// lock wallet
+	}
+}
+
+func (s *ShamirCoordinatorService) handleSendTokensRequest(req types.SendTokensRequest) {
+	txID, err := s.SendAsset(req.Recipient, req.Amount, req.Asset)
+	if err != nil {
+		s.logger.Error("error", "error sending the transaction: "+err.Error())
+		return
+	}
+	s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+req.Recipient)
+	if err = s.db.DeleteRequest(backend.SendTokensRequestPrefix, req.ID); err != nil {
+		s.logger.Error("error", "failed to delete SendTokensRequest", "id", req.ID)
+	}
+}
+
+func (s *ShamirCoordinatorService) handleReIssueRequest(req types.ReIssueRequest) {
+	txID, err := s.ReissueAsset(req.Asset, req.Amount)
+	if err != nil {
+		s.logger.Error("error", "error reissuing asset: "+err.Error())
+		return
+	}
+	s.logger.Info("msg", "successfully reissued asset", "tx-id", txID, "asset", req.Asset, "amount", req.Amount)
+	if err = s.db.DeleteRequest(backend.ReissueRequestPrefix, req.ID); err != nil {
+		s.logger.Error("error", "failed to delete ReIssueRequest", "id", req.ID)
+	}
+}
+
+func (s *ShamirCoordinatorService) handleIssueMachineNFTRequest(req types.IssueMachineNFTRequest) {
+	asset, contract, hexTx, err := s.IssueNFTAsset(req.Name, req.MachineAddress, req.Domain)
+	if err != nil {
+		s.logger.Error("error", "error issuing machine nft: "+err.Error(), "name", req.Name, "machineAddress", req.MachineAddress, "domain", req.Domain)
+		return
+	}
+	s.logger.Info("msg", "successfully issued machine nft", "asset_id", asset, "contract", contract, "hex_tx", hexTx)
+	if err = s.db.DeleteRequest(backend.IssueMachineNFTPrefix, req.ID); err != nil {
+		s.logger.Error("error", "failed to delete IssueMachineNFTRequest", "id", req.ID)
 	}
 }

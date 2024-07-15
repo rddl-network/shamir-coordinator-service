@@ -44,8 +44,8 @@ type Config struct {
 	ShamirShares    int    `json:"shamir-shares"     mapstructure:"shamir-shares"`
 	TestMode        bool   `json:"test-mode"         mapstructure:"test-mode"`
 	LogLevel        string `json:"log-level"         mapstructure:"log-level"`
-	DBPath          string `json:"db-path" 			 mapstructure:"db-path"`
-	WaitPeriod      int    `json:"wait-period" 		 mapstructure:"wait-period"`
+	DBPath          string `json:"db-path"           mapstructure:"db-path"`
+	WaitPeriod      int    `json:"wait-period"       mapstructure:"wait-period"`
 }
 
 // global singleton

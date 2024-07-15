@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	errCompMsg   = "error computing the seeds: "
-	errWalletMsg = "error loading the wallet: "
+	errCompMsg      = "error computing the seeds: "
+	errWalletMsg    = "error loading the wallet: "
+	errSendingTxMsg = "error sending the transaction: "
 )
 
 func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
@@ -36,7 +37,7 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	// send asset
 	txID, err := s.SendAsset(request.Recipient, request.Amount, request.Asset)
 	if err != nil {
-		s.logger.Error("error", "error sending the transaction: "+err.Error())
+		s.logger.Error("error", errSendingTxMsg+err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error sending/broadcasting the transaction"})
 		if e := s.db.CreateSendTokensRequest(request); e != nil {
 			s.logger.Error("error", "error storing transaction request: ", e.Error())
