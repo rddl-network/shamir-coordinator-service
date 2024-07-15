@@ -174,3 +174,8 @@ func (s *ShamirCoordinatorService) IssueNFTAsset(name string, machineAddress str
 
 	return assetID, contract, hex, err
 }
+
+func (s *ShamirCoordinatorService) WalletLock() (err error) {
+	url := s.cfg.GetRPCConnectionString()
+	return elements.WalletLock(url)
+}
