@@ -43,7 +43,7 @@ func createNRequests(db *backend.DBConnector, requestType string, n int) []inter
 	return items
 }
 
-func TestGetTask(t *testing.T) {
+func TestGetRequests(t *testing.T) {
 	db := testutil.SetupTestDBConnector(t)
 
 	issueNFTitems := createNRequests(db, backend.IssueMachineNFTPrefix, 400)
@@ -71,7 +71,7 @@ func TestGetTask(t *testing.T) {
 	}
 }
 
-func TestGetAllTask(t *testing.T) {
+func TestGetAllRequests(t *testing.T) {
 	db := testutil.SetupTestDBConnector(t)
 
 	sendTokensItems := createNRequests(db, backend.SendTokensRequestPrefix, 500)
@@ -108,25 +108,51 @@ func TestGetAllTask(t *testing.T) {
 	assert.Equal(t, comparableIssueNFTItems, issueNFTRequests)
 }
 
-func TestDeleteTask(t *testing.T) {
+func TestDeleteRequest(t *testing.T) {
 	db := testutil.SetupTestDBConnector(t)
 
-	createNRequests(db, backend.IssueMachineNFTPrefix, 500)
-	createNRequests(db, backend.ReissueRequestPrefix, 500)
-	createNRequests(db, backend.SendTokensRequestPrefix, 500)
+	nftReqs := createNRequests(db, backend.IssueMachineNFTPrefix, 500)
+	for _, r := range nftReqs {
+		if req, ok := r.(types.IssueMachineNFTRequest); ok {
+			err := db.DeleteRequest(backend.IssueMachineNFTPrefix, req.ID)
+			assert.NoError(t, err)
 
-	err := db.DeleteRequest(backend.IssueMachineNFTPrefix, 48)
+			var request types.IssueMachineNFTRequest
+			err = db.GetRequest(backend.IssueMachineNFTPrefix, req.ID, request)
+			assert.Equal(t, leveldb.ErrNotFound, err)
+		}
+	}
+	nReqs, err := db.GetAllIssueMachineNFTRequests()
 	assert.NoError(t, err)
-	err = db.DeleteRequest(backend.ReissueRequestPrefix, 68)
-	assert.NoError(t, err)
-	err = db.DeleteRequest(backend.ReissueRequestPrefix, 155)
-	assert.NoError(t, err)
+	assert.Equal(t, len(nReqs), 0)
 
-	reqs, err := db.GetAllIssueMachineNFTRequests()
-	assert.NoError(t, err)
-	assert.Equal(t, len(reqs), 499)
+	reIssueReqs := createNRequests(db, backend.ReissueRequestPrefix, 500)
+	for _, r := range reIssueReqs {
+		if req, ok := r.(types.ReIssueRequest); ok {
+			err := db.DeleteRequest(backend.ReissueRequestPrefix, req.ID)
+			assert.NoError(t, err)
 
-	var request types.IssueMachineNFTRequest
-	err = db.GetRequest(backend.IssueMachineNFTPrefix, 47+1, request)
-	assert.Equal(t, leveldb.ErrNotFound, err)
+			var request types.ReIssueRequest
+			err = db.GetRequest(backend.ReissueRequestPrefix, req.ID, request)
+			assert.Equal(t, leveldb.ErrNotFound, err)
+		}
+	}
+	rReqs, err := db.GetAllReissueRequests()
+	assert.NoError(t, err)
+	assert.Equal(t, len(rReqs), 0)
+
+	sendTokensReqs := createNRequests(db, backend.SendTokensRequestPrefix, 500)
+	for _, r := range sendTokensReqs {
+		if req, ok := r.(types.SendTokensRequest); ok {
+			err := db.DeleteRequest(backend.SendTokensRequestPrefix, req.ID)
+			assert.NoError(t, err)
+
+			var request types.SendTokensRequest
+			err = db.GetRequest(backend.SendTokensRequestPrefix, req.ID, request)
+			assert.Equal(t, leveldb.ErrNotFound, err)
+		}
+	}
+	sReqs, err := db.GetAllSendTokensRequests()
+	assert.NoError(t, err)
+	assert.Equal(t, len(sReqs), 0)
 }
