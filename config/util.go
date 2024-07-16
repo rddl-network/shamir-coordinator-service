@@ -35,6 +35,7 @@ func LoadConfig(path string) (cfg *Config, err error) {
 		cfg.ShamirShares = v.GetInt("shamir-shares")
 		cfg.TestMode = v.GetBool("test-mode")
 		cfg.LogLevel = v.GetString("log-level")
+		cfg.DBPath = v.GetString("db-path")
 
 		if err := viper.Unmarshal(&cfg); err != nil {
 			log.Fatal(err)

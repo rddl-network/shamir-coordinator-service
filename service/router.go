@@ -9,8 +9,10 @@ import (
 )
 
 const (
-	errCompMsg   = "error computing the seeds: "
-	errWalletMsg = "error loading the wallet: "
+	errCompMsg       = "error computing the seeds: "
+	errWalletMsg     = "error loading the wallet: "
+	errSendingTxMsg  = "error sending the transaction: "
+	errWalletLockMsg = "error locking wallet: "
 )
 
 func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
@@ -36,9 +38,16 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	// send asset
 	txID, err := s.SendAsset(request.Recipient, request.Amount, request.Asset)
 	if err != nil {
-		s.logger.Error("error", "error sending the transaction: "+err.Error())
+		s.logger.Error("error", errSendingTxMsg+err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error sending/broadcasting the transaction"})
+		if e := s.db.CreateSendTokensRequest(request.Recipient, request.Amount, request.Asset); e != nil {
+			s.logger.Error("error", "error storing transaction request: ", e.Error())
+		}
 		return
+	}
+
+	if err = s.WalletLock(); err != nil {
+		s.logger.Error("error", errWalletLockMsg+err.Error())
 	}
 
 	s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+request.Recipient)
@@ -74,7 +83,14 @@ func (s *ShamirCoordinatorService) ReIssue(c *gin.Context) {
 	if err != nil {
 		s.logger.Error("error", "error reissuing asset: "+err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error reissuing asset"})
+		if e := s.db.CreateReIssueRequest(request.Amount, request.Asset); e != nil {
+			s.logger.Error("error", "error storing reissue request: ", e.Error())
+		}
 		return
+	}
+
+	if err = s.WalletLock(); err != nil {
+		s.logger.Error("error", errWalletLockMsg+err.Error())
 	}
 
 	s.logger.Info("msg", "successfully reissued asset", "tx-id", txID, "asset", request.Asset, "amount", request.Amount)
@@ -108,7 +124,14 @@ func (s *ShamirCoordinatorService) IssueMachineNFT(c *gin.Context) {
 	if err != nil {
 		s.logger.Error("error", "error issuing machine nft: "+err.Error(), "name", request.Name, "machineAddress", request.MachineAddress, "domain", request.Domain)
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		if e := s.db.CreateIssueMachineNFTRequest(request.Name, request.MachineAddress, request.Domain); e != nil {
+			s.logger.Error("error", "error storing issue nft request: ", e.Error())
+		}
 		return
+	}
+
+	if err = s.WalletLock(); err != nil {
+		s.logger.Error("error", errWalletLockMsg+err.Error())
 	}
 
 	s.logger.Info("msg", "successfully issued machine nft", "asset_id", asset, "contract", contract, "hex_tx", hexTx)

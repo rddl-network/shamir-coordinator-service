@@ -32,7 +32,8 @@ func TestTestMode(t *testing.T) {
 
 	slip39mock := &testutil.Slip39Mock{}
 	logger := log.GetLogger(log.DEBUG)
-	s := service.NewShamirCoordinatorService(&mycfg, sscs, slip39mock, logger)
+	db := testutil.SetupTestDBConnector(t)
+	s := service.NewShamirCoordinatorService(&mycfg, sscs, slip39mock, logger, db)
 
 	routes := s.GetRoutes()
 	assert.Equal(t, 5, len(routes))

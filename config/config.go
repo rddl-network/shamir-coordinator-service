@@ -22,6 +22,8 @@ shamir-threshold={{ .ShamirThreshold }}
 shamir-shares={{ .ShamirShares }}
 test-mode={{ .TestMode }}
 log-level="{{ .LogLevel }}"
+db-path="{{ .DBPath }}"
+wait-period={{ .WaitPeriod }}
 `
 
 // Config defines TA's top level configuration
@@ -42,6 +44,8 @@ type Config struct {
 	ShamirShares    int    `json:"shamir-shares"     mapstructure:"shamir-shares"`
 	TestMode        bool   `json:"test-mode"         mapstructure:"test-mode"`
 	LogLevel        string `json:"log-level"         mapstructure:"log-level"`
+	DBPath          string `json:"db-path"           mapstructure:"db-path"`
+	WaitPeriod      int    `json:"wait-period"       mapstructure:"wait-period"`
 }
 
 // global singleton
@@ -69,6 +73,8 @@ func DefaultConfig() *Config {
 		ShamirShares:    3,
 		TestMode:        false,
 		LogLevel:        "info",
+		DBPath:          "./data/",
+		WaitPeriod:      300,
 	}
 }
 

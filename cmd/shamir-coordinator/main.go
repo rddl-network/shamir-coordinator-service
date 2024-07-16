@@ -8,6 +8,7 @@ import (
 	"github.com/rddl-network/go-utils/tls"
 	"github.com/rddl-network/shamir-coordinator-service/config"
 	"github.com/rddl-network/shamir-coordinator-service/service"
+	"github.com/rddl-network/shamir-coordinator-service/service/backend"
 	"github.com/rddl-network/shamir-shareholder-service/client"
 )
 
@@ -31,7 +32,15 @@ func main() {
 
 	slip39Interface := &service.Slip39Interface{}
 	logger := log.GetLogger(cfg.LogLevel)
-	SCoordinator := service.NewShamirCoordinatorService(cfg, sscs, slip39Interface, logger)
+
+	db, err := backend.InitDB(cfg)
+	if err != nil {
+		stdlog.Fatal(err)
+	}
+	defer db.Close()
+	dc := backend.NewDBConnector(db)
+
+	SCoordinator := service.NewShamirCoordinatorService(cfg, sscs, slip39Interface, logger, dc)
 	err = SCoordinator.Run()
 	if err != nil {
 		logger.Error(err.Error())
