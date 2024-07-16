@@ -47,7 +47,7 @@ func TestPostMnemonics(t *testing.T) {
 
 func TestSendTokens(t *testing.T) {
 	t.Parallel()
-	expectedRequestBody := `{"recipient":"testRecipient","amount":"123","asset":"","id":0}`
+	expectedRequestBody := `{"recipient":"testRecipient","amount":"123","asset":""}`
 	expectedResponseBody := `{"tx-id":"12345"}`
 
 	mockServer := setupMockServer(t, http.MethodPost, "/send", expectedRequestBody, expectedResponseBody)
@@ -63,7 +63,7 @@ func TestSendTokens(t *testing.T) {
 
 func TestReissueAsset(t *testing.T) {
 	t.Parallel()
-	expectedRequestBody := `{"asset":"06c20c8de513527f1ae6c901f74a05126525ac2d7e89306f4a7fd5ec4e674403","amount":"123","id":0}`
+	expectedRequestBody := `{"asset":"06c20c8de513527f1ae6c901f74a05126525ac2d7e89306f4a7fd5ec4e674403","amount":"123"}`
 	expectedResponseBody := `{"tx-id":"12345"}`
 
 	mockServer := setupMockServer(t, http.MethodPost, "/reissue", expectedRequestBody, expectedResponseBody)
@@ -79,7 +79,7 @@ func TestReissueAsset(t *testing.T) {
 
 func TestIssueMachineNFT(t *testing.T) {
 	t.Parallel()
-	expectedRequestBody := `{"name":"Machine","machine-address":"someAddr","domain":"testnet-assets.rddl.io","id":0}`
+	expectedRequestBody := `{"name":"Machine","machine-address":"someAddr","domain":"testnet-assets.rddl.io"}`
 	expectedResponseBody := `{"asset":"12345","contract":"someContract","hex-tx":"06c20c8de513527f1ae6c901f74a05126525ac2d7e89306f4a7fd5ec4e674403"}`
 
 	mockServer := setupMockServer(t, http.MethodPost, "/issue-machine-nft", expectedRequestBody, expectedResponseBody)

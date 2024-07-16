@@ -6,7 +6,6 @@ import (
 
 	"github.com/rddl-network/shamir-coordinator-service/service/backend"
 	"github.com/rddl-network/shamir-coordinator-service/testutil"
-	"github.com/rddl-network/shamir-coordinator-service/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -18,20 +17,20 @@ func createNRequests(db *backend.DBConnector, requestType string, n int) []inter
 		id, _ := db.IncrementCount(requestType)
 		switch requestType {
 		case backend.SendTokensRequestPrefix:
-			items[i] = types.SendTokensRequest{
+			items[i] = backend.SendTokensRequest{
 				Recipient: "recipient" + iStr,
 				Amount:    "1000",
 				Asset:     "asset" + iStr,
 				ID:        id,
 			}
 		case backend.ReissueRequestPrefix:
-			items[i] = types.ReIssueRequest{
+			items[i] = backend.ReIssueRequest{
 				Asset:  "asset" + iStr,
 				Amount: "1500",
 				ID:     id,
 			}
 		case backend.IssueMachineNFTPrefix:
-			items[i] = types.IssueMachineNFTRequest{
+			items[i] = backend.IssueMachineNFTRequest{
 				Name:           "machine" + iStr,
 				MachineAddress: "machAddr" + iStr,
 				Domain:         "domain" + iStr,
@@ -48,7 +47,7 @@ func TestGetRequests(t *testing.T) {
 
 	issueNFTitems := createNRequests(db, backend.IssueMachineNFTPrefix, 400)
 	for i, item := range issueNFTitems {
-		var request types.IssueMachineNFTRequest
+		var request backend.IssueMachineNFTRequest
 		err := db.GetRequest(backend.IssueMachineNFTPrefix, i+1, &request)
 		assert.NoError(t, err)
 		assert.Equal(t, item, request)
@@ -56,7 +55,7 @@ func TestGetRequests(t *testing.T) {
 
 	reIssueItems := createNRequests(db, backend.ReissueRequestPrefix, 500)
 	for i, item := range reIssueItems {
-		var request types.ReIssueRequest
+		var request backend.ReIssueRequest
 		err := db.GetRequest(backend.ReissueRequestPrefix, i+1, &request)
 		assert.NoError(t, err)
 		assert.Equal(t, item, request)
@@ -64,7 +63,7 @@ func TestGetRequests(t *testing.T) {
 
 	sendTokensItems := createNRequests(db, backend.SendTokensRequestPrefix, 300)
 	for i, item := range sendTokensItems {
-		var request types.SendTokensRequest
+		var request backend.SendTokensRequest
 		err := db.GetRequest(backend.SendTokensRequestPrefix, i+1, &request)
 		assert.NoError(t, err)
 		assert.Equal(t, item, request)
@@ -75,9 +74,9 @@ func TestGetAllRequests(t *testing.T) {
 	db := testutil.SetupTestDBConnector(t)
 
 	sendTokensItems := createNRequests(db, backend.SendTokensRequestPrefix, 500)
-	var comparableSendTokensItems []types.SendTokensRequest
+	var comparableSendTokensItems []backend.SendTokensRequest
 	for _, r := range sendTokensItems {
-		if req, ok := r.(types.SendTokensRequest); ok {
+		if req, ok := r.(backend.SendTokensRequest); ok {
 			comparableSendTokensItems = append(comparableSendTokensItems, req)
 		}
 	}
@@ -86,9 +85,9 @@ func TestGetAllRequests(t *testing.T) {
 	assert.Equal(t, comparableSendTokensItems, sendTokensRequests)
 
 	reIssueItems := createNRequests(db, backend.ReissueRequestPrefix, 500)
-	var comparableReIssueItems []types.ReIssueRequest
+	var comparableReIssueItems []backend.ReIssueRequest
 	for _, r := range reIssueItems {
-		if req, ok := r.(types.ReIssueRequest); ok {
+		if req, ok := r.(backend.ReIssueRequest); ok {
 			comparableReIssueItems = append(comparableReIssueItems, req)
 		}
 	}
@@ -97,9 +96,9 @@ func TestGetAllRequests(t *testing.T) {
 	assert.Equal(t, comparableReIssueItems, reIssueRequests)
 
 	issueNFTitems := createNRequests(db, backend.IssueMachineNFTPrefix, 500)
-	var comparableIssueNFTItems []types.IssueMachineNFTRequest
+	var comparableIssueNFTItems []backend.IssueMachineNFTRequest
 	for _, r := range issueNFTitems {
-		if req, ok := r.(types.IssueMachineNFTRequest); ok {
+		if req, ok := r.(backend.IssueMachineNFTRequest); ok {
 			comparableIssueNFTItems = append(comparableIssueNFTItems, req)
 		}
 	}
@@ -113,11 +112,11 @@ func TestDeleteRequest(t *testing.T) {
 
 	nftReqs := createNRequests(db, backend.IssueMachineNFTPrefix, 500)
 	for _, r := range nftReqs {
-		if req, ok := r.(types.IssueMachineNFTRequest); ok {
+		if req, ok := r.(backend.IssueMachineNFTRequest); ok {
 			err := db.DeleteRequest(backend.IssueMachineNFTPrefix, req.ID)
 			assert.NoError(t, err)
 
-			var request types.IssueMachineNFTRequest
+			var request backend.IssueMachineNFTRequest
 			err = db.GetRequest(backend.IssueMachineNFTPrefix, req.ID, request)
 			assert.Equal(t, leveldb.ErrNotFound, err)
 		}
@@ -128,11 +127,11 @@ func TestDeleteRequest(t *testing.T) {
 
 	reIssueReqs := createNRequests(db, backend.ReissueRequestPrefix, 500)
 	for _, r := range reIssueReqs {
-		if req, ok := r.(types.ReIssueRequest); ok {
+		if req, ok := r.(backend.ReIssueRequest); ok {
 			err := db.DeleteRequest(backend.ReissueRequestPrefix, req.ID)
 			assert.NoError(t, err)
 
-			var request types.ReIssueRequest
+			var request backend.ReIssueRequest
 			err = db.GetRequest(backend.ReissueRequestPrefix, req.ID, request)
 			assert.Equal(t, leveldb.ErrNotFound, err)
 		}
@@ -143,11 +142,11 @@ func TestDeleteRequest(t *testing.T) {
 
 	sendTokensReqs := createNRequests(db, backend.SendTokensRequestPrefix, 500)
 	for _, r := range sendTokensReqs {
-		if req, ok := r.(types.SendTokensRequest); ok {
+		if req, ok := r.(backend.SendTokensRequest); ok {
 			err := db.DeleteRequest(backend.SendTokensRequestPrefix, req.ID)
 			assert.NoError(t, err)
 
-			var request types.SendTokensRequest
+			var request backend.SendTokensRequest
 			err = db.GetRequest(backend.SendTokensRequestPrefix, req.ID, request)
 			assert.Equal(t, leveldb.ErrNotFound, err)
 		}

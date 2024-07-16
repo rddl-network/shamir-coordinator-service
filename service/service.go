@@ -12,7 +12,6 @@ import (
 	"github.com/rddl-network/go-utils/tls"
 	"github.com/rddl-network/shamir-coordinator-service/config"
 	"github.com/rddl-network/shamir-coordinator-service/service/backend"
-	"github.com/rddl-network/shamir-coordinator-service/types"
 	"github.com/rddl-network/shamir-shareholder-service/client"
 )
 
@@ -120,7 +119,7 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 	}
 }
 
-func (s *ShamirCoordinatorService) handleSendTokensRequest(req types.SendTokensRequest) {
+func (s *ShamirCoordinatorService) handleSendTokensRequest(req backend.SendTokensRequest) {
 	txID, err := s.SendAsset(req.Recipient, req.Amount, req.Asset)
 	if err != nil {
 		s.logger.Error("error", "error sending the transaction: "+err.Error())
@@ -132,7 +131,7 @@ func (s *ShamirCoordinatorService) handleSendTokensRequest(req types.SendTokensR
 	}
 }
 
-func (s *ShamirCoordinatorService) handleReIssueRequest(req types.ReIssueRequest) {
+func (s *ShamirCoordinatorService) handleReIssueRequest(req backend.ReIssueRequest) {
 	txID, err := s.ReissueAsset(req.Asset, req.Amount)
 	if err != nil {
 		s.logger.Error("error", "error reissuing asset: "+err.Error())
@@ -144,7 +143,7 @@ func (s *ShamirCoordinatorService) handleReIssueRequest(req types.ReIssueRequest
 	}
 }
 
-func (s *ShamirCoordinatorService) handleIssueMachineNFTRequest(req types.IssueMachineNFTRequest) {
+func (s *ShamirCoordinatorService) handleIssueMachineNFTRequest(req backend.IssueMachineNFTRequest) {
 	asset, contract, hexTx, err := s.IssueNFTAsset(req.Name, req.MachineAddress, req.Domain)
 	if err != nil {
 		s.logger.Error("error", "error issuing machine nft: "+err.Error(), "name", req.Name, "machineAddress", req.MachineAddress, "domain", req.Domain)

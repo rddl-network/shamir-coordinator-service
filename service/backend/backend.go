@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	"github.com/rddl-network/shamir-coordinator-service/config"
-	"github.com/rddl-network/shamir-coordinator-service/types"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
 )
@@ -71,30 +70,44 @@ func (dc *DBConnector) CreateRequest(requestType string, id int, request interfa
 	return nil
 }
 
-func (dc *DBConnector) CreateSendTokensRequest(request types.SendTokensRequest) (err error) {
+func (dc *DBConnector) CreateSendTokensRequest(recipient string, amount string, asset string) (err error) {
 	id, err := dc.IncrementCount(SendTokensRequestPrefix)
 	if err != nil {
 		return
 	}
-	request.ID = id
+	request := SendTokensRequest{
+		Recipient: recipient,
+		Amount:    amount,
+		Asset:     asset,
+		ID:        id,
+	}
 	return dc.CreateRequest(SendTokensRequestPrefix, id, request)
 }
 
-func (dc *DBConnector) CreateReIssueRequest(request types.ReIssueRequest) (err error) {
+func (dc *DBConnector) CreateReIssueRequest(amount string, asset string) (err error) {
 	id, err := dc.IncrementCount(ReissueRequestPrefix)
 	if err != nil {
 		return
 	}
-	request.ID = id
+	request := ReIssueRequest{
+		Amount: amount,
+		Asset:  asset,
+		ID:     id,
+	}
 	return dc.CreateRequest(ReissueRequestPrefix, id, request)
 }
 
-func (dc *DBConnector) CreateIssueMachineNFTRequest(request types.IssueMachineNFTRequest) (err error) {
+func (dc *DBConnector) CreateIssueMachineNFTRequest(name string, machineAddr string, domain string) (err error) {
 	id, err := dc.IncrementCount(IssueMachineNFTPrefix)
 	if err != nil {
 		return
 	}
-	request.ID = id
+	request := IssueMachineNFTRequest{
+		Name:           name,
+		MachineAddress: machineAddr,
+		Domain:         domain,
+		ID:             id,
+	}
 	return dc.CreateRequest(IssueMachineNFTPrefix, id, request)
 }
 
@@ -117,11 +130,11 @@ func (dc *DBConnector) DeleteRequest(requestType string, id int) (err error) {
 	return dc.db.Delete(key, nil)
 }
 
-func (dc *DBConnector) GetAllIssueMachineNFTRequests() (requests []types.IssueMachineNFTRequest, err error) {
+func (dc *DBConnector) GetAllIssueMachineNFTRequests() (requests []IssueMachineNFTRequest, err error) {
 	iter := dc.db.NewIterator(util.BytesPrefix([]byte(IssueMachineNFTPrefix)), nil)
 	defer iter.Release()
 	for iter.Next() {
-		var request types.IssueMachineNFTRequest
+		var request IssueMachineNFTRequest
 		requestBytes := iter.Value()
 		err = json.Unmarshal(requestBytes, &request)
 		if err != nil {
@@ -132,11 +145,11 @@ func (dc *DBConnector) GetAllIssueMachineNFTRequests() (requests []types.IssueMa
 	return
 }
 
-func (dc *DBConnector) GetAllSendTokensRequests() (requests []types.SendTokensRequest, err error) {
+func (dc *DBConnector) GetAllSendTokensRequests() (requests []SendTokensRequest, err error) {
 	iter := dc.db.NewIterator(util.BytesPrefix([]byte(SendTokensRequestPrefix)), nil)
 	defer iter.Release()
 	for iter.Next() {
-		var request types.SendTokensRequest
+		var request SendTokensRequest
 		requestBytes := iter.Value()
 		err = json.Unmarshal(requestBytes, &request)
 		if err != nil {
@@ -147,11 +160,11 @@ func (dc *DBConnector) GetAllSendTokensRequests() (requests []types.SendTokensRe
 	return
 }
 
-func (dc *DBConnector) GetAllReissueRequests() (requests []types.ReIssueRequest, err error) {
+func (dc *DBConnector) GetAllReissueRequests() (requests []ReIssueRequest, err error) {
 	iter := dc.db.NewIterator(util.BytesPrefix([]byte(ReissueRequestPrefix)), nil)
 	defer iter.Release()
 	for iter.Next() {
-		var request types.ReIssueRequest
+		var request ReIssueRequest
 		requestBytes := iter.Value()
 		err = json.Unmarshal(requestBytes, &request)
 		if err != nil {
