@@ -76,6 +76,28 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 	defer ticker.Stop()
 
 	for range ticker.C {
+		sendTokensRequests, err := s.db.GetAllSendTokensRequests()
+		if err != nil {
+			s.logger.Error("msg", "error while reading sendTokensRequests: "+err.Error())
+		}
+
+		reIssueRequests, err := s.db.GetAllReissueRequests()
+		if err != nil {
+			s.logger.Error("msg", "error while reading reIssueRequests: "+err.Error())
+		}
+
+		issueNFTAssetRequests, err := s.db.GetAllIssueMachineNFTRequests()
+		if err != nil {
+			s.logger.Error("msg", "error while reading issueNFTAssetRequests: "+err.Error())
+		}
+
+		numReqs := len(sendTokensRequests) + len(reIssueRequests) + len(issueNFTAssetRequests)
+
+		// If no reqs are read from backend do not unlock wallet
+		if numReqs == 0 {
+			continue
+		}
+
 		passphrase, err := s.GetPassphrase()
 		if err != nil {
 			s.logger.Error("error", errWalletMsg+err.Error())
@@ -89,26 +111,14 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 			continue
 		}
 
-		sendTokensRequests, err := s.db.GetAllSendTokensRequests()
-		if err != nil {
-			s.logger.Error("msg", "error while reading sendTokensRequests: "+err.Error())
-		}
 		for _, req := range sendTokensRequests {
 			s.handleSendTokensRequest(req)
 		}
 
-		reIssueRequests, err := s.db.GetAllReissueRequests()
-		if err != nil {
-			s.logger.Error("msg", "error while reading reIssueRequests: "+err.Error())
-		}
 		for _, req := range reIssueRequests {
 			s.handleReIssueRequest(req)
 		}
 
-		issueNFTAssetRequests, err := s.db.GetAllIssueMachineNFTRequests()
-		if err != nil {
-			s.logger.Error("msg", "error while reading issueNFTAssetRequests: "+err.Error())
-		}
 		for _, req := range issueNFTAssetRequests {
 			s.handleIssueMachineNFTRequest(req)
 		}
