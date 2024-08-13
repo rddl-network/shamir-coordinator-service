@@ -130,14 +130,19 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 }
 
 func (s *ShamirCoordinatorService) handleSendTokensRequest(req backend.SendTokensRequest) {
+	var keepInQueue = false
 	txID, err := s.SendAsset(req.Recipient, req.Amount, req.Asset)
 	if err != nil {
 		s.logger.Error("error", "error sending the transaction: "+err.Error())
-		return
+		keepInQueue = s.AddToQueue(err)
+	} else {
+		s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+req.Recipient)
 	}
-	s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+req.Recipient)
-	if err = s.db.DeleteRequest(backend.SendTokensRequestPrefix, req.ID); err != nil {
-		s.logger.Error("error", "failed to delete SendTokensRequest", "id", req.ID)
+
+	if !keepInQueue {
+		if err = s.db.DeleteRequest(backend.SendTokensRequestPrefix, req.ID); err != nil {
+			s.logger.Error("error", "failed to delete SendTokensRequest", "id", req.ID)
+		}
 	}
 }
 

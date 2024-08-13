@@ -174,3 +174,20 @@ func TestIssueMachineNFTFail(t *testing.T) {
 	assert.Contains(t, w.Body.String(), "Error")
 	assert.Equal(t, 400, w.Code)
 }
+
+type BitcoinAddressError struct {
+	msg string
+}
+
+func (e BitcoinAddressError) Error() string {
+	return e.msg
+}
+
+func TestAddToQueue(t *testing.T) {
+	s := testutil.SetupTestService(t)
+	err := BitcoinAddressError{"Invalid Bitcoin Address:"}
+	assert.False(t, s.AddToQueue(err))
+
+	err = BitcoinAddressError{": -5"}
+	assert.False(t, s.AddToQueue(err))
+}

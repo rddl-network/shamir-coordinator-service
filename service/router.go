@@ -2,6 +2,7 @@ package service
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	hexutil "github.com/rddl-network/go-utils/hex"
@@ -14,6 +15,16 @@ const (
 	errSendingTxMsg  = "error sending the transaction: "
 	errWalletLockMsg = "error locking wallet: "
 )
+
+func (s *ShamirCoordinatorService) AddToQueue(err error) bool {
+	errorString := strings.ToLower(err.Error())
+
+	// Invalid Bitcoin address response error
+	if strings.Contains(errorString, "invalid bitcoin address:") || strings.HasSuffix(errorString, ": -5") {
+		return false
+	}
+	return true
+}
 
 func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	var request types.SendTokensRequest
@@ -40,20 +51,21 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	if err != nil {
 		s.logger.Error("error", errSendingTxMsg+err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error sending/broadcasting the transaction"})
-		if e := s.db.CreateSendTokensRequest(request.Recipient, request.Amount, request.Asset); e != nil {
-			s.logger.Error("error", "error storing transaction request: ", e.Error())
+		if s.AddToQueue(err) {
+			if e := s.db.CreateSendTokensRequest(request.Recipient, request.Amount, request.Asset); e != nil {
+				s.logger.Error("error", "error storing transaction request: "+e.Error())
+			}
 		}
-		return
+	} else {
+		s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+request.Recipient)
+		var resBody types.SendTokensResponse
+		resBody.TxID = txID
+		c.JSON(http.StatusOK, resBody)
 	}
 
 	if err = s.WalletLock(); err != nil {
 		s.logger.Error("error", errWalletLockMsg+err.Error())
 	}
-
-	s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+request.Recipient)
-	var resBody types.SendTokensResponse
-	resBody.TxID = txID
-	c.JSON(http.StatusOK, resBody)
 }
 
 func (s *ShamirCoordinatorService) ReIssue(c *gin.Context) {
@@ -84,17 +96,16 @@ func (s *ShamirCoordinatorService) ReIssue(c *gin.Context) {
 		s.logger.Error("error", "error reissuing asset: "+err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error reissuing asset"})
 		if e := s.db.CreateReIssueRequest(request.Amount, request.Asset); e != nil {
-			s.logger.Error("error", "error storing reissue request: ", e.Error())
+			s.logger.Error("error", "error storing reissue request: "+e.Error())
 		}
-		return
+	} else {
+		s.logger.Info("msg", "successfully reissued asset", "tx-id", txID, "asset", request.Asset, "amount", request.Amount)
+		c.JSON(http.StatusOK, types.ReIssueResponse{TxID: txID})
 	}
 
 	if err = s.WalletLock(); err != nil {
 		s.logger.Error("error", errWalletLockMsg+err.Error())
 	}
-
-	s.logger.Info("msg", "successfully reissued asset", "tx-id", txID, "asset", request.Asset, "amount", request.Amount)
-	c.JSON(http.StatusOK, types.ReIssueResponse{TxID: txID})
 }
 
 func (s *ShamirCoordinatorService) IssueMachineNFT(c *gin.Context) {
@@ -125,22 +136,20 @@ func (s *ShamirCoordinatorService) IssueMachineNFT(c *gin.Context) {
 		s.logger.Error("error", "error issuing machine nft: "+err.Error(), "name", request.Name, "machineAddress", request.MachineAddress, "domain", request.Domain)
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
 		if e := s.db.CreateIssueMachineNFTRequest(request.Name, request.MachineAddress, request.Domain); e != nil {
-			s.logger.Error("error", "error storing issue nft request: ", e.Error())
+			s.logger.Error("error", "error storing issue nft request: "+e.Error())
 		}
-		return
+	} else {
+		s.logger.Info("msg", "successfully issued machine nft", "asset_id", asset, "contract", contract, "hex_tx", hexTx)
+		c.JSON(http.StatusOK, types.IssueMachineNFTResponse{
+			Asset:    asset,
+			Contract: contract,
+			HexTX:    hexTx,
+		})
 	}
 
 	if err = s.WalletLock(); err != nil {
 		s.logger.Error("error", errWalletLockMsg+err.Error())
 	}
-
-	s.logger.Info("msg", "successfully issued machine nft", "asset_id", asset, "contract", contract, "hex_tx", hexTx)
-
-	c.JSON(http.StatusOK, types.IssueMachineNFTResponse{
-		Asset:    asset,
-		Contract: contract,
-		HexTX:    hexTx,
-	})
 }
 
 func (s *ShamirCoordinatorService) DeployShares(c *gin.Context) {
