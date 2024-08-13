@@ -2,6 +2,7 @@ package service
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	hexutil "github.com/rddl-network/go-utils/hex"
@@ -40,20 +41,21 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	if err != nil {
 		s.logger.Error("error", errSendingTxMsg+err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error sending/broadcasting the transaction"})
-		if e := s.db.CreateSendTokensRequest(request.Recipient, request.Amount, request.Asset); e != nil {
-			s.logger.Error("error", "error storing transaction request: "+e.Error())
+		if !strings.Contains(err.Error(), "Invalid Bitcoin address:") && !strings.HasSuffix(err.Error(), ": -5") {
+			if e := s.db.CreateSendTokensRequest(request.Recipient, request.Amount, request.Asset); e != nil {
+				s.logger.Error("error", "error storing transaction request: "+e.Error())
+			}
 		}
-		return
+	} else {
+		s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+request.Recipient)
+		var resBody types.SendTokensResponse
+		resBody.TxID = txID
+		c.JSON(http.StatusOK, resBody)
 	}
 
 	if err = s.WalletLock(); err != nil {
 		s.logger.Error("error", errWalletLockMsg+err.Error())
 	}
-
-	s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+request.Recipient)
-	var resBody types.SendTokensResponse
-	resBody.TxID = txID
-	c.JSON(http.StatusOK, resBody)
 }
 
 func (s *ShamirCoordinatorService) ReIssue(c *gin.Context) {
@@ -86,15 +88,14 @@ func (s *ShamirCoordinatorService) ReIssue(c *gin.Context) {
 		if e := s.db.CreateReIssueRequest(request.Amount, request.Asset); e != nil {
 			s.logger.Error("error", "error storing reissue request: "+e.Error())
 		}
-		return
+	} else {
+		s.logger.Info("msg", "successfully reissued asset", "tx-id", txID, "asset", request.Asset, "amount", request.Amount)
+		c.JSON(http.StatusOK, types.ReIssueResponse{TxID: txID})
 	}
 
 	if err = s.WalletLock(); err != nil {
 		s.logger.Error("error", errWalletLockMsg+err.Error())
 	}
-
-	s.logger.Info("msg", "successfully reissued asset", "tx-id", txID, "asset", request.Asset, "amount", request.Amount)
-	c.JSON(http.StatusOK, types.ReIssueResponse{TxID: txID})
 }
 
 func (s *ShamirCoordinatorService) IssueMachineNFT(c *gin.Context) {
@@ -127,20 +128,18 @@ func (s *ShamirCoordinatorService) IssueMachineNFT(c *gin.Context) {
 		if e := s.db.CreateIssueMachineNFTRequest(request.Name, request.MachineAddress, request.Domain); e != nil {
 			s.logger.Error("error", "error storing issue nft request: "+e.Error())
 		}
-		return
+	} else {
+		s.logger.Info("msg", "successfully issued machine nft", "asset_id", asset, "contract", contract, "hex_tx", hexTx)
+		c.JSON(http.StatusOK, types.IssueMachineNFTResponse{
+			Asset:    asset,
+			Contract: contract,
+			HexTX:    hexTx,
+		})
 	}
 
 	if err = s.WalletLock(); err != nil {
 		s.logger.Error("error", errWalletLockMsg+err.Error())
 	}
-
-	s.logger.Info("msg", "successfully issued machine nft", "asset_id", asset, "contract", contract, "hex_tx", hexTx)
-
-	c.JSON(http.StatusOK, types.IssueMachineNFTResponse{
-		Asset:    asset,
-		Contract: contract,
-		HexTX:    hexTx,
-	})
 }
 
 func (s *ShamirCoordinatorService) DeployShares(c *gin.Context) {
