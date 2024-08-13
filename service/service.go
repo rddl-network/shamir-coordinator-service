@@ -5,7 +5,6 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -131,23 +130,16 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 }
 
 func (s *ShamirCoordinatorService) handleSendTokensRequest(req backend.SendTokensRequest) {
-	var deleteEntry = false
+	var keepInQueue = false
 	txID, err := s.SendAsset(req.Recipient, req.Amount, req.Asset)
-
 	if err != nil {
 		s.logger.Error("error", "error sending the transaction: "+err.Error())
-		if !strings.Contains(err.Error(), "Invalid Bitcoin address:") && !strings.HasSuffix(err.Error(), ": -5") {
-			deleteEntry = false
-		} else {
-			deleteEntry = true
-		}
-
+		keepInQueue = s.AddToQueue(err)
 	} else {
 		s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+req.Recipient)
-		deleteEntry = true
 	}
 
-	if deleteEntry {
+	if !keepInQueue {
 		if err = s.db.DeleteRequest(backend.SendTokensRequestPrefix, req.ID); err != nil {
 			s.logger.Error("error", "failed to delete SendTokensRequest", "id", req.ID)
 		}

@@ -16,6 +16,15 @@ const (
 	errWalletLockMsg = "error locking wallet: "
 )
 
+func (s *ShamirCoordinatorService) AddToQueue(err error) bool {
+
+	// Invalid Bitcoin address response error
+	if strings.Contains(err.Error(), "Invalid Bitcoin address:") || !strings.HasSuffix(err.Error(), ": -5") {
+		return false
+	}
+	return true
+}
+
 func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	var request types.SendTokensRequest
 	if err := c.BindJSON(&request); err != nil {
@@ -41,7 +50,7 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	if err != nil {
 		s.logger.Error("error", errSendingTxMsg+err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error sending/broadcasting the transaction"})
-		if !strings.Contains(err.Error(), "Invalid Bitcoin address:") && !strings.HasSuffix(err.Error(), ": -5") {
+		if s.AddToQueue(err) {
 			if e := s.db.CreateSendTokensRequest(request.Recipient, request.Amount, request.Asset); e != nil {
 				s.logger.Error("error", "error storing transaction request: "+e.Error())
 			}
