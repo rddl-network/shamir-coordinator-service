@@ -17,7 +17,6 @@ const (
 )
 
 func (s *ShamirCoordinatorService) AddToQueue(err error) bool {
-
 	// Invalid Bitcoin address response error
 	if strings.Contains(err.Error(), "Invalid Bitcoin address:") || !strings.HasSuffix(err.Error(), ": -5") {
 		return false
