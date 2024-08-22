@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 
 	elements "github.com/rddl-network/elements-rpc"
@@ -19,8 +20,9 @@ var (
 )
 
 func isValidAmount(amount string) (valid bool) {
+	amount = strings.TrimSpace(amount)
 	f, err := strconv.ParseFloat(amount, 64)
-	if err == nil && f != 0.0 {
+	if err == nil && f > 0.0 {
 		valid = true
 	}
 	return
