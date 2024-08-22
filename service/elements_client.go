@@ -18,6 +18,14 @@ var (
 	elementsSyncAccess sync.Mutex
 )
 
+func isValidAmount(amount string) (valid bool) {
+	f, err := strconv.ParseFloat(amount, 64)
+	if err == nil && f != 0.0 {
+		valid = true
+	}
+	return
+}
+
 func (s *ShamirCoordinatorService) SendAsset(address string, amount string, asset string) (txID string, err error) {
 	if asset == "" {
 		asset = s.cfg.AssetID

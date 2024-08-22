@@ -131,6 +131,14 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 
 func (s *ShamirCoordinatorService) handleSendTokensRequest(req backend.SendTokensRequest) {
 	var keepInQueue = false
+	if !isValidAmount(req.Amount) {
+		s.logger.Info("msg", "Disregard token send request due to invalid amount "+req.Amount)
+		if err := s.db.DeleteRequest(backend.SendTokensRequestPrefix, req.ID); err != nil {
+			s.logger.Error("error", "failed to delete SendTokensRequest", "id", req.ID)
+		}
+		return
+	}
+
 	txID, err := s.SendAsset(req.Recipient, req.Amount, req.Asset)
 	if err != nil {
 		s.logger.Error("error", "error sending the transaction: "+err.Error())

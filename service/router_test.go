@@ -62,6 +62,21 @@ func TestSendPass(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 }
 
+func TestSendFailAmount0(t *testing.T) {
+	elements.Client = &elementsmocks.MockClient{}
+	s := testutil.SetupTestService(t)
+
+	request := types.SendTokensRequest{Amount: "0.0", Recipient: "1111111111111111111111111111"}
+	jsonString, err := json.Marshal(request)
+	assert.NoError(t, err)
+
+	w := httptest.NewRecorder()
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, "/send", bytes.NewBuffer(jsonString))
+	assert.NoError(t, err)
+	s.Router.ServeHTTP(w, req)
+	assert.Equal(t, 400, w.Code)
+}
+
 func TestSendFail(t *testing.T) {
 	elements.Client = &elementsmocks.MockClient{}
 	s := testutil.SetupTestService(t)

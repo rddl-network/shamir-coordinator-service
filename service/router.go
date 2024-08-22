@@ -33,6 +33,12 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 		return
 	}
 	s.logger.Info("msg", "preparing to send "+request.Amount+" tokens to "+request.Recipient)
+	if !isValidAmount(request.Amount) {
+		msg := "Cannot send tokens with amount " + request.Amount
+		s.logger.Error("msg", msg)
+		c.JSON(http.StatusBadRequest, gin.H{"Error": msg})
+		return
+	}
 	passphrase, err := s.GetPassphrase()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
