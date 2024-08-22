@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 	"sync"
 
 	elements "github.com/rddl-network/elements-rpc"
@@ -17,6 +18,15 @@ var (
 	// so that UTXOs are not spend twice by accident
 	elementsSyncAccess sync.Mutex
 )
+
+func isValidAmount(amount string) (valid bool) {
+	amount = strings.TrimSpace(amount)
+	f, err := strconv.ParseFloat(amount, 64)
+	if err == nil && f > 0.0 {
+		valid = true
+	}
+	return
+}
 
 func (s *ShamirCoordinatorService) SendAsset(address string, amount string, asset string) (txID string, err error) {
 	if asset == "" {
