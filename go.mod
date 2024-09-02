@@ -7,11 +7,12 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/rddl-network/bc-slip39-go v0.1.3
 	github.com/rddl-network/elements-rpc v1.2.0
-	github.com/rddl-network/go-utils v0.2.0
+	github.com/rddl-network/go-utils v0.2.2
 	github.com/rddl-network/shamir-shareholder-service v0.1.5
 	github.com/rddl-network/shamir-shareholder-service/client v0.0.4
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.9.0
+	github.com/syndtr/goleveldb v1.0.0
 )
 
 require (
@@ -44,7 +45,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/syndtr/goleveldb v1.0.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	golang.org/x/arch v0.3.0 // indirect
