@@ -155,6 +155,7 @@ func (s *ShamirCoordinatorService) handleSendTokensRequest(req backend.SendToken
 }
 
 func (s *ShamirCoordinatorService) handleReIssueRequest(req backend.ReIssueRequest) {
+	s.logger.Info("msg", "reissuing asset "+req.Asset+"with amount "+req.Amount)
 	txID, err := s.ReissueAsset(req.Asset, req.Amount)
 	if err != nil {
 		s.logger.Error("error", "error reissuing asset: "+err.Error())
