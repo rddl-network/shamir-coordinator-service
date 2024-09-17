@@ -144,7 +144,7 @@ func (s *ShamirCoordinatorService) handleSendTokensRequest(req backend.SendToken
 		s.logger.Error("error", "error sending the transaction: "+err.Error())
 		keepInQueue = s.AddToQueue(err)
 	} else {
-		s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+req.Recipient)
+		s.logger.Info("msg", "successfully sent tx with id: "+txID+" to "+req.Recipient)
 	}
 
 	if !keepInQueue {
