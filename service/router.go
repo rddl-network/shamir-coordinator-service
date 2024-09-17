@@ -63,7 +63,7 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 			}
 		}
 	} else {
-		s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+request.Recipient)
+		s.logger.Info("msg", "successfully sent tx with id: "+txID+" to "+request.Recipient)
 		var resBody types.SendTokensResponse
 		resBody.TxID = txID
 		c.JSON(http.StatusOK, resBody)

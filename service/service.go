@@ -144,7 +144,7 @@ func (s *ShamirCoordinatorService) handleSendTokensRequest(req backend.SendToken
 		s.logger.Error("error", "error sending the transaction: "+err.Error())
 		keepInQueue = s.AddToQueue(err)
 	} else {
-		s.logger.Info("msg", "successfully sended tx with id: "+txID+" to "+req.Recipient)
+		s.logger.Info("msg", "successfully sent tx with id: "+txID+" to "+req.Recipient)
 	}
 
 	if !keepInQueue {
@@ -155,7 +155,7 @@ func (s *ShamirCoordinatorService) handleSendTokensRequest(req backend.SendToken
 }
 
 func (s *ShamirCoordinatorService) handleReIssueRequest(req backend.ReIssueRequest) {
-	s.logger.Info("msg", "reissuing asset "+req.Asset+"with amount "+req.Amount)
+	s.logger.Info("msg", "reissuing asset "+req.Asset+" with amount "+req.Amount)
 	txID, err := s.ReissueAsset(req.Asset, req.Amount)
 	if err != nil {
 		s.logger.Error("error", "error reissuing asset: "+err.Error())
