@@ -1,6 +1,6 @@
 module github.com/rddl-network/shamir-coordinator-service/client
 
-go 1.21.5
+go 1.22
 
 require (
 	github.com/rddl-network/shamir-coordinator-service v0.1.2
