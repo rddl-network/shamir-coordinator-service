@@ -82,10 +82,10 @@ github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRI
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rddl-network/bc-slip39-go v0.1.3 h1:vKGsoehPG84qBw+2MzIWCJmq0bBGGpy7/Q4Uowx7Wvw=
 github.com/rddl-network/bc-slip39-go v0.1.3/go.mod h1:WmJlBZ3rCVLhgWqqcVkZHOTECECQhpbT8cZm8TCRxmk=
-github.com/rddl-network/elements-rpc v1.2.0 h1:ckrtWAy/PKxWwPObNh5A/ZZ9cdy8/rSZwEE+3OjTx/M=
-github.com/rddl-network/elements-rpc v1.2.0/go.mod h1:E35cJMXZqe1iEo/AvjwSWn25mHZ4+y4gV8qj0lWle5c=
-github.com/rddl-network/go-utils v0.2.2 h1:aHvb1autpzbcUwJ3aMzJJthlWSPgAJOEKPckU5XTkKw=
-github.com/rddl-network/go-utils v0.2.2/go.mod h1:wKZ1lmCGilj7jw3wylgySHz0o9puPi60HV3xS6gjPUo=
+github.com/rddl-network/elements-rpc v1.2.1 h1:clE3daxNPJJ1EDiAkTSlXUM2+gakmLHxWOazZ4t2W48=
+github.com/rddl-network/elements-rpc v1.2.1/go.mod h1:9a71Z7xja4rFMXa+ssUMLAF9VIZVPz2jZRB1hTS9Ey4=
+github.com/rddl-network/go-utils v0.2.3 h1:STiiyZVkFjovjMAyKK1IsqvVED14mRHoXFIDVbwxlFQ=
+github.com/rddl-network/go-utils v0.2.3/go.mod h1:jLOkVBK/xjfVyY0d4gs1pkafTXF3mYA7ZIE68QXau5o=
 github.com/rddl-network/shamir-shareholder-service v0.1.5 h1:ZTCH7/Q79T1xMaJGeUWrr1wo6/Z3CtRI3Qr4kPlI/LI=
 github.com/rddl-network/shamir-shareholder-service v0.1.5/go.mod h1:f7j0BxV0fs+U1+54QCfHU8qR27LfBYsuSyIT8FgEqk8=
 github.com/rddl-network/shamir-shareholder-service/client v0.0.4 h1:+4UiMyJj/KVnYtLWvk6asb8NDbSlNuJ7A9Y3QDNMabU=

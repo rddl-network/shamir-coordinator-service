@@ -1,13 +1,13 @@
 module github.com/rddl-network/shamir-coordinator-service
 
-go 1.21.5
+go 1.22
 
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golang/mock v1.6.0
 	github.com/rddl-network/bc-slip39-go v0.1.3
-	github.com/rddl-network/elements-rpc v1.2.0
-	github.com/rddl-network/go-utils v0.2.2
+	github.com/rddl-network/elements-rpc v1.2.1
+	github.com/rddl-network/go-utils v0.2.3
 	github.com/rddl-network/shamir-shareholder-service v0.1.5
 	github.com/rddl-network/shamir-shareholder-service/client v0.0.4
 	github.com/spf13/viper v1.16.0
