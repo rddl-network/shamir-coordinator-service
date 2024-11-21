@@ -12,7 +12,7 @@ import (
 	"github.com/rddl-network/shamir-coordinator-service/types"
 )
 
-type IShamirCoordinatorClient interface {
+type ISCClient interface {
 	GetMnemonics(ctx context.Context) (res types.MnemonicsResponse, err error)
 	PostMnemonics(ctx context.Context, secret string) (err error)
 	SendTokens(ctx context.Context, recipient string, amount string, asset string) (res types.SendTokensResponse, err error)
@@ -20,32 +20,32 @@ type IShamirCoordinatorClient interface {
 	IssueMachineNFT(ctx context.Context, name string, machineAddress string, domain string) (res types.IssueMachineNFTResponse, err error)
 }
 
-type ShamirCoordinatorClient struct {
+type SCClient struct {
 	baseURL string
 	client  *http.Client
 }
 
-func NewShamirCoordinatorClient(baseURL string, client *http.Client) *ShamirCoordinatorClient {
+func NewSCClient(baseURL string, client *http.Client) *SCClient {
 	if client == nil {
 		client = &http.Client{}
 	}
-	return &ShamirCoordinatorClient{
+	return &SCClient{
 		baseURL: baseURL,
 		client:  client,
 	}
 }
 
-func (scc *ShamirCoordinatorClient) GetMnemonics(ctx context.Context) (res types.MnemonicsResponse, err error) {
+func (scc *SCClient) GetMnemonics(ctx context.Context) (res types.MnemonicsResponse, err error) {
 	err = scc.doRequest(ctx, http.MethodGet, scc.baseURL+"/mnemonics", nil, &res)
 	return
 }
 
-func (scc *ShamirCoordinatorClient) PostMnemonics(ctx context.Context, secret string) (err error) {
+func (scc *SCClient) PostMnemonics(ctx context.Context, secret string) (err error) {
 	err = scc.doRequest(ctx, http.MethodPost, scc.baseURL+"/mnemonics/"+url.PathEscape(secret), nil, nil)
 	return
 }
 
-func (scc *ShamirCoordinatorClient) SendTokens(ctx context.Context, recipient string, amount string, asset string) (res types.SendTokensResponse, err error) {
+func (scc *SCClient) SendTokens(ctx context.Context, recipient string, amount string, asset string) (res types.SendTokensResponse, err error) {
 	requestBody := types.SendTokensRequest{
 		Recipient: recipient,
 		Amount:    amount,
@@ -55,7 +55,7 @@ func (scc *ShamirCoordinatorClient) SendTokens(ctx context.Context, recipient st
 	return
 }
 
-func (scc *ShamirCoordinatorClient) ReIssueAsset(ctx context.Context, asset string, amount string) (res types.ReIssueResponse, err error) {
+func (scc *SCClient) ReIssueAsset(ctx context.Context, asset string, amount string) (res types.ReIssueResponse, err error) {
 	requestBody := types.ReIssueRequest{
 		Asset:  asset,
 		Amount: amount,
@@ -64,7 +64,7 @@ func (scc *ShamirCoordinatorClient) ReIssueAsset(ctx context.Context, asset stri
 	return
 }
 
-func (scc *ShamirCoordinatorClient) IssueMachineNFT(ctx context.Context, name string, machineAddress string, domain string) (res types.IssueMachineNFTResponse, err error) {
+func (scc *SCClient) IssueMachineNFT(ctx context.Context, name string, machineAddress string, domain string) (res types.IssueMachineNFTResponse, err error) {
 	requestBody := types.IssueMachineNFTRequest{
 		Name:           name,
 		MachineAddress: machineAddress,
@@ -74,7 +74,7 @@ func (scc *ShamirCoordinatorClient) IssueMachineNFT(ctx context.Context, name st
 	return
 }
 
-func (scc *ShamirCoordinatorClient) doRequest(ctx context.Context, method, url string, body interface{}, response interface{}) (err error) {
+func (scc *SCClient) doRequest(ctx context.Context, method, url string, body interface{}, response interface{}) (err error) {
 	var bodyReader io.Reader
 	if body != nil {
 		bodyBytes, err := json.Marshal(body)

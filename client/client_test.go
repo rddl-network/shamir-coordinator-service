@@ -21,7 +21,7 @@ func TestGetMnemonics(t *testing.T) {
 	}))
 	defer mockServer.Close()
 
-	c := client.NewShamirCoordinatorClient(mockServer.URL, mockServer.Client())
+	c := client.NewSCClient(mockServer.URL, mockServer.Client())
 	res, err := c.GetMnemonics(context.Background())
 
 	assert.NoError(t, err)
@@ -39,7 +39,7 @@ func TestPostMnemonics(t *testing.T) {
 	}))
 	defer mockServer.Close()
 
-	c := client.NewShamirCoordinatorClient(mockServer.URL, mockServer.Client())
+	c := client.NewSCClient(mockServer.URL, mockServer.Client())
 	err := c.PostMnemonics(context.Background(), "someSecret")
 
 	assert.NoError(t, err)
@@ -53,7 +53,7 @@ func TestSendTokens(t *testing.T) {
 	mockServer := setupMockServer(t, http.MethodPost, "/send", expectedRequestBody, expectedResponseBody)
 	defer mockServer.Close()
 
-	c := client.NewShamirCoordinatorClient(mockServer.URL, mockServer.Client())
+	c := client.NewSCClient(mockServer.URL, mockServer.Client())
 	res, err := c.SendTokens(context.Background(), "testRecipient", "123", "")
 
 	assert.NoError(t, err)
@@ -69,7 +69,7 @@ func TestReissueAsset(t *testing.T) {
 	mockServer := setupMockServer(t, http.MethodPost, "/reissue", expectedRequestBody, expectedResponseBody)
 	defer mockServer.Close()
 
-	c := client.NewShamirCoordinatorClient(mockServer.URL, mockServer.Client())
+	c := client.NewSCClient(mockServer.URL, mockServer.Client())
 	res, err := c.ReIssueAsset(context.Background(), "06c20c8de513527f1ae6c901f74a05126525ac2d7e89306f4a7fd5ec4e674403", "123")
 
 	assert.NoError(t, err)
@@ -85,7 +85,7 @@ func TestIssueMachineNFT(t *testing.T) {
 	mockServer := setupMockServer(t, http.MethodPost, "/issue-machine-nft", expectedRequestBody, expectedResponseBody)
 	defer mockServer.Close()
 
-	c := client.NewShamirCoordinatorClient(mockServer.URL, mockServer.Client())
+	c := client.NewSCClient(mockServer.URL, mockServer.Client())
 	res, err := c.IssueMachineNFT(context.Background(), "Machine", "someAddr", "testnet-assets.rddl.io")
 
 	assert.NoError(t, err)
