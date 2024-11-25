@@ -10,6 +10,33 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestLockingMutex(t *testing.T) {
+	elements.Client = &elementsmocks.MockClient{}
+	s := testutil.SetupTestService(t)
+
+	passphrase := "password"
+	err := s.PrepareWallet(passphrase)
+	assert.NoError(t, err)
+
+	err = s.PrepareWallet(passphrase)
+	assert.NoError(t, err)
+
+	locked, err := s.WalletLock()
+	assert.NoError(t, err)
+	assert.True(t, locked == false)
+
+	locked, err = s.WalletLock()
+	assert.NoError(t, err)
+	assert.True(t, locked == true)
+
+	err = s.PrepareWallet(passphrase)
+	assert.NoError(t, err)
+
+	locked, err = s.WalletLock()
+	assert.NoError(t, err)
+	assert.True(t, locked == true)
+}
+
 func TestSendTo(t *testing.T) {
 	elements.Client = &elementsmocks.MockClient{}
 	s := testutil.SetupTestService(t)

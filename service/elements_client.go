@@ -17,7 +17,23 @@ var (
 	// this mutex has to protect all signing and crafting of transactions and their inputs
 	// so that UTXOs are not spend twice by accident
 	elementsSyncAccess sync.Mutex
+	lockingMutex       sync.Mutex
+	unlockCounter      int
 )
+
+func increaseUnlockCounter() {
+	lockingMutex.Lock()
+	defer lockingMutex.Unlock()
+	unlockCounter++
+}
+
+func decreaseUnlockCounter() (isZero bool) {
+	lockingMutex.Lock()
+	defer lockingMutex.Unlock()
+	unlockCounter--
+	isZero = (unlockCounter == 0)
+	return
+}
 
 func isValidAmount(amount string) (valid bool) {
 	amount = strings.TrimSpace(amount)
@@ -74,7 +90,9 @@ func (s *ShamirCoordinatorService) PrepareWallet(passphrase string) (err error) 
 	loaded, err := s.IsWalletLoaded(s.cfg.GetRPCConnectionString(), s.cfg.RPCWalletName)
 	if err != nil {
 		s.logger.Error("error", "Error listing the wallets: "+err.Error())
+		return
 	}
+
 	if !loaded {
 		// loaded wallet via RPC if not loaded
 		_, err = elements.LoadWallet(s.cfg.GetRPCConnectionString(), []string{`"` + s.cfg.RPCWalletName + `"`})
@@ -89,6 +107,8 @@ func (s *ShamirCoordinatorService) PrepareWallet(passphrase string) (err error) 
 		s.logger.Error("error", "Error decrypting the wallet: "+err.Error())
 		return
 	}
+
+	increaseUnlockCounter()
 	return
 }
 
@@ -185,7 +205,12 @@ func (s *ShamirCoordinatorService) IssueNFTAsset(name string, machineAddress str
 	return assetID, contract, hex, err
 }
 
-func (s *ShamirCoordinatorService) WalletLock() (err error) {
-	url := s.cfg.GetRPCConnectionString()
-	return elements.WalletLock(url)
+func (s *ShamirCoordinatorService) WalletLock() (locked bool, err error) {
+	toBeLocked := decreaseUnlockCounter()
+	if toBeLocked {
+		url := s.cfg.GetRPCConnectionString()
+		err = elements.WalletLock(url)
+	}
+	locked = toBeLocked
+	return locked, err
 }

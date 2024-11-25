@@ -69,7 +69,7 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 		c.JSON(http.StatusOK, resBody)
 	}
 
-	if err = s.WalletLock(); err != nil {
+	if _, err = s.WalletLock(); err != nil {
 		s.logger.Error("error", errWalletLockMsg+err.Error())
 	}
 }
@@ -109,7 +109,7 @@ func (s *ShamirCoordinatorService) ReIssue(c *gin.Context) {
 		c.JSON(http.StatusOK, types.ReIssueResponse{TxID: txID})
 	}
 
-	if err = s.WalletLock(); err != nil {
+	if _, err = s.WalletLock(); err != nil {
 		s.logger.Error("error", errWalletLockMsg+err.Error())
 	}
 }
@@ -153,7 +153,7 @@ func (s *ShamirCoordinatorService) IssueMachineNFT(c *gin.Context) {
 		})
 	}
 
-	if err = s.WalletLock(); err != nil {
+	if _, err = s.WalletLock(); err != nil {
 		s.logger.Error("error", errWalletLockMsg+err.Error())
 	}
 }
