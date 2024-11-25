@@ -18,7 +18,7 @@ var (
 	// so that UTXOs are not spend twice by accident
 	elementsSyncAccess sync.Mutex
 	lockingMutex       sync.Mutex
-	unlockCounter      int
+	unlockCounter      uint
 )
 
 func increaseUnlockCounter() {
@@ -30,7 +30,9 @@ func increaseUnlockCounter() {
 func decreaseUnlockCounter() (isZero bool) {
 	lockingMutex.Lock()
 	defer lockingMutex.Unlock()
-	unlockCounter--
+	if unlockCounter > 0 {
+		unlockCounter--
+	}
 	isZero = (unlockCounter == 0)
 	return
 }
