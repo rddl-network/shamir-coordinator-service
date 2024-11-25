@@ -123,7 +123,7 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 			s.handleIssueMachineNFTRequest(req)
 		}
 
-		if err = s.WalletLock(); err != nil {
+		if _, err = s.WalletLock(); err != nil {
 			s.logger.Error("error", errWalletLockMsg+err.Error())
 		}
 	}
