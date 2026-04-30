@@ -36,6 +36,12 @@ func LoadConfig(path string) (cfg *Config, err error) {
 		cfg.TestMode = v.GetBool("test-mode")
 		cfg.LogLevel = v.GetString("log-level")
 		cfg.DBPath = v.GetString("db-path")
+		if v.IsSet("wait-period") {
+			cfg.WaitPeriod = v.GetInt("wait-period")
+		}
+		if v.IsSet("max-requests-per-rerun") {
+			cfg.MaxRequestsPerRerun = v.GetInt("max-requests-per-rerun")
+		}
 
 		if err := viper.Unmarshal(&cfg); err != nil {
 			log.Fatal(err)

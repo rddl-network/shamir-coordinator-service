@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -36,12 +37,12 @@ func formatKey(key []byte) string {
 			}
 		}
 	}
-	return fmt.Sprintf("%x", key)
+	return hex.EncodeToString(key)
 }
 
 func formatValue(val []byte) string {
 	if !isPrintable(val) {
-		return fmt.Sprintf("(binary) %x", val)
+		return "(binary) " + hex.EncodeToString(val)
 	}
 	// Try to pretty-print JSON
 	var js interface{}
@@ -55,6 +56,13 @@ func formatValue(val []byte) string {
 }
 
 func main() {
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	dbPath := "./data"
 	if len(os.Args) > 1 {
 		dbPath = os.Args[1]
@@ -62,8 +70,7 @@ func main() {
 
 	db, err := leveldb.OpenFile(dbPath, nil)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error opening LevelDB: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("error opening LevelDB: %w", err)
 	}
 	defer db.Close()
 
@@ -90,8 +97,7 @@ func main() {
 	}
 
 	if err := iter.Error(); err != nil {
-		fmt.Fprintf(os.Stderr, "Iterator error: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("iterator error: %w", err)
 	}
 
 	if count == 0 {
@@ -102,8 +108,8 @@ func main() {
 
 	outputPath := "./data/db-dump.md"
 	if err := os.WriteFile(outputPath, []byte(sb.String()), 0600); err != nil {
-		fmt.Fprintf(os.Stderr, "Error writing output: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("error writing output: %w", err)
 	}
 	fmt.Printf("Wrote %d entries to %s\n", count, outputPath)
+	return nil
 }

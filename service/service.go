@@ -66,66 +66,97 @@ func (s *ShamirCoordinatorService) Run() (err error) {
 		return err
 	}
 	defer ln.Close()
-	go s.rerunFailedRequests(cfg.WaitPeriod)
+	go s.rerunFailedRequests(cfg.WaitPeriod, cfg.MaxRequestsPerRerun)
 	s.logger.Info("msg", "started server", "host", cfg.ServiceBind, "port", cfg.ServicePort)
 	return server.ServeTLS(ln, cfg.CertsPath+"server.crt", cfg.CertsPath+"server.key")
 }
 
-func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
+func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int, maxRequestsPerRerun int) {
 	ticker := time.NewTicker(time.Duration(waitPeriod) * time.Second)
 	defer ticker.Stop()
+	if maxRequestsPerRerun <= 0 {
+		maxRequestsPerRerun = 15
+	}
 
 	for range ticker.C {
-		sendTokensRequests, err := s.db.GetAllSendTokensRequests()
-		if err != nil {
-			s.logger.Error("msg", "error while reading sendTokensRequests: "+err.Error())
-		}
-
-		reIssueRequests, err := s.db.GetAllReissueRequests()
-		if err != nil {
-			s.logger.Error("msg", "error while reading reIssueRequests: "+err.Error())
-		}
-
-		issueNFTAssetRequests, err := s.db.GetAllIssueMachineNFTRequests()
-		if err != nil {
-			s.logger.Error("msg", "error while reading issueNFTAssetRequests: "+err.Error())
-		}
-
-		numReqs := len(sendTokensRequests) + len(reIssueRequests) + len(issueNFTAssetRequests)
-
-		// If no reqs are read from backend do not unlock wallet
-		if numReqs == 0 {
+		sendTokensRequests, reIssueRequests, issueNFTAssetRequests := s.readQueuedRequests()
+		if len(sendTokensRequests)+len(reIssueRequests)+len(issueNFTAssetRequests) == 0 {
 			continue
 		}
 
-		passphrase, err := s.GetPassphrase()
-		if err != nil {
-			s.logger.Error("error", errWalletMsg+err.Error())
+		if !s.prepareWalletForRerun() {
 			continue
 		}
 
-		// prepare the wallet, loading and unlocking
-		err = s.PrepareWallet(passphrase)
-		if err != nil {
-			s.logger.Error("error", errWalletMsg+err.Error())
-			continue
-		}
+		s.processQueuedRequests(sendTokensRequests, reIssueRequests, issueNFTAssetRequests, maxRequestsPerRerun)
 
-		for _, req := range sendTokensRequests {
-			s.handleSendTokensRequest(req)
+		if _, walletLockErr := s.WalletLock(); walletLockErr != nil {
+			s.logger.Error("error", errWalletLockMsg+walletLockErr.Error())
 		}
+	}
+}
 
-		for _, req := range reIssueRequests {
-			s.handleReIssueRequest(req)
-		}
+func (s *ShamirCoordinatorService) readQueuedRequests() ([]backend.SendTokensRequest, []backend.ReIssueRequest, []backend.IssueMachineNFTRequest) {
+	sendTokensRequests, err := s.db.GetAllSendTokensRequests()
+	if err != nil {
+		s.logger.Error("msg", "error while reading sendTokensRequests: "+err.Error())
+	}
 
-		for _, req := range issueNFTAssetRequests {
-			s.handleIssueMachineNFTRequest(req)
-		}
+	reIssueRequests, err := s.db.GetAllReissueRequests()
+	if err != nil {
+		s.logger.Error("msg", "error while reading reIssueRequests: "+err.Error())
+	}
 
-		if _, err = s.WalletLock(); err != nil {
-			s.logger.Error("error", errWalletLockMsg+err.Error())
+	issueNFTAssetRequests, err := s.db.GetAllIssueMachineNFTRequests()
+	if err != nil {
+		s.logger.Error("msg", "error while reading issueNFTAssetRequests: "+err.Error())
+	}
+
+	return sendTokensRequests, reIssueRequests, issueNFTAssetRequests
+}
+
+func (s *ShamirCoordinatorService) prepareWalletForRerun() bool {
+	passphrase, err := s.GetPassphrase()
+	if err != nil {
+		s.logger.Error("error", errWalletMsg+err.Error())
+		return false
+	}
+
+	// prepare the wallet, loading and unlocking
+	err = s.PrepareWallet(passphrase)
+	if err != nil {
+		s.logger.Error("error", errWalletMsg+err.Error())
+		return false
+	}
+
+	return true
+}
+
+func (s *ShamirCoordinatorService) processQueuedRequests(sendTokensRequests []backend.SendTokensRequest, reIssueRequests []backend.ReIssueRequest, issueNFTAssetRequests []backend.IssueMachineNFTRequest, maxRequestsPerRerun int) {
+	remaining := maxRequestsPerRerun
+
+	for _, req := range sendTokensRequests {
+		if remaining == 0 {
+			return
 		}
+		s.handleSendTokensRequest(req)
+		remaining--
+	}
+
+	for _, req := range reIssueRequests {
+		if remaining == 0 {
+			return
+		}
+		s.handleReIssueRequest(req)
+		remaining--
+	}
+
+	for _, req := range issueNFTAssetRequests {
+		if remaining == 0 {
+			return
+		}
+		s.handleIssueMachineNFTRequest(req)
+		remaining--
 	}
 }
 
