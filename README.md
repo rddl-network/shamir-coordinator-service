@@ -109,3 +109,20 @@ shamir-threshold = 2
 share-holder-list = 'https://localhost:8081,https://localhost:8082,https://localhost:8083'
 test-mode = false
 ```
+
+## Database
+
+The service uses a LevelDB database (default path: `./data`) to persist pending requests. The database stores:
+
+- **Count keys** (`Count/<RequestType>/`): running counters for each request type (e.g. `SendTokens`, `Reissue`, `IssueMachineNFT`).
+- **Request keys** (`<RequestType>/[id=N]`): JSON-encoded request payloads, keyed by request type and sequential ID.
+
+### Dump the database
+
+A utility tool is included to dump the full contents of the database into a Markdown file (`data/db-dump.md`):
+
+```bash
+go run cmd/dump-db/main.go [path/to/data]
+```
+
+The path argument defaults to `./data`. The output file contains each key-value pair formatted as pretty-printed JSON.
