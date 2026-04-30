@@ -66,14 +66,17 @@ func (s *ShamirCoordinatorService) Run() (err error) {
 		return err
 	}
 	defer ln.Close()
-	go s.rerunFailedRequests(cfg.WaitPeriod)
+	go s.rerunFailedRequests(cfg.WaitPeriod, cfg.MaxRequestsPerRerun)
 	s.logger.Info("msg", "started server", "host", cfg.ServiceBind, "port", cfg.ServicePort)
 	return server.ServeTLS(ln, cfg.CertsPath+"server.crt", cfg.CertsPath+"server.key")
 }
 
-func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
+func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int, maxRequestsPerRerun int) {
 	ticker := time.NewTicker(time.Duration(waitPeriod) * time.Second)
 	defer ticker.Stop()
+	if maxRequestsPerRerun <= 0 {
+		maxRequestsPerRerun = 15
+	}
 
 	for range ticker.C {
 		sendTokensRequests, err := s.db.GetAllSendTokensRequests()
@@ -111,16 +114,30 @@ func (s *ShamirCoordinatorService) rerunFailedRequests(waitPeriod int) {
 			continue
 		}
 
+		remaining := maxRequestsPerRerun
+
 		for _, req := range sendTokensRequests {
+			if remaining == 0 {
+				break
+			}
 			s.handleSendTokensRequest(req)
+			remaining--
 		}
 
 		for _, req := range reIssueRequests {
+			if remaining == 0 {
+				break
+			}
 			s.handleReIssueRequest(req)
+			remaining--
 		}
 
 		for _, req := range issueNFTAssetRequests {
+			if remaining == 0 {
+				break
+			}
 			s.handleIssueMachineNFTRequest(req)
+			remaining--
 		}
 
 		if _, err = s.WalletLock(); err != nil {
