@@ -10,11 +10,24 @@ import (
 )
 
 const (
-	errCompMsg       = "error computing the seeds: "
-	errWalletMsg     = "error loading the wallet: "
-	errSendingTxMsg  = "error sending the transaction: "
-	errWalletLockMsg = "error locking wallet: "
+	errCompMsg          = "error computing the seeds: "
+	errWalletMsg        = "error loading the wallet: "
+	errSendingTxMsg     = "error sending the transaction: "
+	errWalletLockMsg    = "error locking wallet: "
+	liquidNetworkPrefix = "liquidnetwork:"
 )
+
+func normalizeRecipientAddress(recipient string) (string, bool) {
+	if len(recipient) < len(liquidNetworkPrefix) {
+		return recipient, false
+	}
+
+	if strings.EqualFold(recipient[:len(liquidNetworkPrefix)], liquidNetworkPrefix) {
+		return recipient[len(liquidNetworkPrefix):], true
+	}
+
+	return recipient, false
+}
 
 func (s *ShamirCoordinatorService) AddToQueue(err error) bool {
 	errorString := strings.ToLower(err.Error())
@@ -32,6 +45,12 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
+
+	if normalizedRecipient, wasPrefixed := normalizeRecipientAddress(request.Recipient); wasPrefixed {
+		s.logger.Info("msg", "removed recipient liquidnetwork prefix", "recipient", request.Recipient, "normalized_recipient", normalizedRecipient)
+		request.Recipient = normalizedRecipient
+	}
+
 	s.logger.Info("msg", "preparing to send "+request.Amount+" tokens to "+request.Recipient)
 	if !isValidAmount(request.Amount) {
 		msg := "Cannot send tokens with amount " + request.Amount
@@ -56,7 +75,7 @@ func (s *ShamirCoordinatorService) SendTokens(c *gin.Context) {
 	txID, err := s.SendAsset(request.Recipient, request.Amount, request.Asset)
 	if err != nil {
 		s.logger.Error("error", errSendingTxMsg+err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error sending/broadcasting the transaction"})
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": errSendingTxMsg + err.Error()})
 		if s.AddToQueue(err) {
 			if e := s.db.CreateSendTokensRequest(request.Recipient, request.Amount, request.Asset); e != nil {
 				s.logger.Error("error", "error storing transaction request: "+e.Error())
@@ -176,7 +195,7 @@ func (s *ShamirCoordinatorService) DeployShares(c *gin.Context) {
 	}
 	err = s.deployMnemonics(mnemonics)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Error": "error sending/broadcasting the transaction"})
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": errSendingTxMsg + err.Error()})
 		return
 	}
 
