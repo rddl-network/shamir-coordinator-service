@@ -25,3 +25,4 @@ tags
 
 app.toml
 certs
+/data
