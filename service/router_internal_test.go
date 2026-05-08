@@ -1,5 +1,4 @@
 package service
-package service
 
 import (
 	"testing"
@@ -11,9 +10,9 @@ func TestNormalizeRecipientAddress(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name       string
-		recipient  string
-		expected   string
+		name        string
+		recipient   string
+		expected    string
 		wasPrefixed bool
 	}{
 		{
